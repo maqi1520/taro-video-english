@@ -3,7 +3,7 @@ import Taro, { useState, useCallback } from "@tarojs/taro";
 import { AtModal, AtModalAction, AtModalContent, AtTextarea } from "taro-ui";
 
 interface Props {
-  reload: () => void;
+  onOk: (name: string) => void;
   className?: string;
   children?: string;
 }
@@ -30,19 +30,8 @@ const Create: Taro.FC<Props> = props => {
       return;
     }
     onClose();
-    Taro.cloud
-      .callFunction({
-        name: "createTree",
-        data: {
-          name
-        }
-      })
-      .then(res => {
-        if (res && res.result) {
-          props.reload();
-        }
-      });
-  }, [name, onClose, props.reload]);
+    props.onOk(name.trim());
+  }, [name, onClose, props.onOk]);
   return (
     <View>
       <Button className={props.className} onClick={handleClick}>

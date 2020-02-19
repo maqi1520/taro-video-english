@@ -1,0 +1,37 @@
+.container {
+  margin-top: 1.5rem;
+}
+.choose {
+  padding: 1rem;
+}
+.subtitle {
+  font-size: 14px;
+  padding: 0.5rem 1.5rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0.625rem;
+  color: #fff;
+  font-weight: 400;
+  text-align: center;
+}
+.choice {
+  font-size: 14px;
+  margin-top: 1.5rem;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  border: 0.0625rem solid #eceff4;
+  background-color: hsla(0, 0%, 100%, 0.9);
+  border-radius: 0.1875rem;
+}
+.choice-green {
+  background-color: #74e4a2;
+  border-color: #74e4a2;
+  color: #fff;
+  font-weight: 700;
+}
+
+.choice-red {
+  background-color: #ff5a57;
+  border-color: #ff5a57;
+  color: #fff;
+  font-weight: 700;
+}

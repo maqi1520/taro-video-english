@@ -12,7 +12,7 @@ exports.main = async (event) => {
       parentId,
       openId: wxContext.OPENID, // 填入当前用户 openid
     })
-    .limit(10) // 限制返回数量为 10 条
+    .limit(20) // 限制返回数量为 10 条
     .get()
   return {
     data: res.data,

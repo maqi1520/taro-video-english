@@ -10,6 +10,8 @@ exports.main = async (event, context) => {
   const res = await db.collection('sweetNothings').add({
     data: {
       ...event,
+      createTime:new Date(),
+      updateTime: new Date(),
       openId: wxContext.OPENID
     }
   })

@@ -1,1 +1,13 @@
 @import "~taro-ui/dist/style/index.scss"; // 引入组件样式，仅需引入一次即可
+
+.page {
+  padding: 20px;
+}
+.list {
+  padding: 8px;
+  margin-bottom: 20px;
+}
+
+.mb {
+  margin-bottom: 20px;
+}

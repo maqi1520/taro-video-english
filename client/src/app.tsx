@@ -1,9 +1,9 @@
-import Taro, { Component, Config } from '@tarojs/taro'
-import { Provider } from '@tarojs/redux'
-import store from './store/createStore'
-import Index from './pages/index'
+import Taro, { Component, Config } from "@tarojs/taro";
+import { Provider } from "@tarojs/redux";
+import store from "./store/createStore";
+import Index from "./pages/index";
 
-import './app.scss'
+import "./app.scss";
 
 // 如果需要在 h5 环境中开启 React Devtools
 // 取消以下注释：
@@ -20,44 +20,44 @@ class App extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
   config: Config = {
-    pages: ['pages/index/index', 'pages/find/index', 'pages/my/index'],
+    pages: ["pages/index/index", "pages/find/index", "pages/my/index"],
     cloud: true,
     window: {
-      backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      backgroundTextStyle: "light",
+      navigationBarBackgroundColor: "#fff",
+      navigationBarTitleText: "WeChat",
+      navigationBarTextStyle: "black"
     },
     tabBar: {
-      backgroundColor: '#ffffff',
-      color: '#b3b3b3',
-      selectedColor: '#0c17d8',
+      backgroundColor: "#ffffff",
+      color: "#b3b3b3",
+      selectedColor: "#0c17d8",
       list: [
         {
-          pagePath: 'pages/index/index',
-          text: '首页',
-          iconPath: './assets/images/home.png',
-          selectedIconPath: './assets/images/home-selected.png'
+          pagePath: "pages/index/index",
+          text: "首页",
+          iconPath: "./assets/images/home.png",
+          selectedIconPath: "./assets/images/home-selected.png"
         },
         {
-          pagePath: 'pages/find/index',
-          text: '搜索',
-          iconPath: './assets/images/search.png',
-          selectedIconPath: './assets/images/search-selected.png'
+          pagePath: "pages/find/index",
+          text: "搜索",
+          iconPath: "./assets/images/search.png",
+          selectedIconPath: "./assets/images/search-selected.png"
         },
         {
-          pagePath: 'pages/my/index',
-          text: '我的',
-          iconPath: './assets/images/user.png',
-          selectedIconPath: './assets/images/user-selected.png'
+          pagePath: "pages/my/index",
+          text: "我的",
+          iconPath: "./assets/images/user.png",
+          selectedIconPath: "./assets/images/user-selected.png"
         }
       ]
     }
-  }
+  };
 
   componentDidMount() {
-    if (process.env.TARO_ENV === 'weapp') {
-      Taro.cloud.init()
+    if (process.env.TARO_ENV === "weapp") {
+      Taro.cloud.init();
     }
   }
 
@@ -74,8 +74,8 @@ class App extends Component {
       <Provider store={store}>
         <Index />
       </Provider>
-    )
+    );
   }
 }
 
-Taro.render(<App />, document.getElementById('app'))
+Taro.render(<App />, document.getElementById("app"));

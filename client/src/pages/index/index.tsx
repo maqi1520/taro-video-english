@@ -32,12 +32,34 @@ const Login: Taro.FC<Props> = () => {
   useEffect(() => {
     load();
   }, [load]);
-  const fallback = useCallback(() => {
-    Taro.atMessage({
-      message: "投稿成功，等待审核通过，感谢您的参与！",
-      type: "success"
-    });
-  }, []);
+  const handleOk = useCallback(
+    name => {
+      Taro.cloud
+        .callFunction({
+          name: "createSweetNothing",
+          data: {
+            type: "默认分类",
+            content: name,
+            linkCount: 0,
+            disLikeCount: 0,
+            status: 0
+          }
+        })
+        .then(res => {
+          if (res && res.result) {
+            Taro.atMessage({
+              message: "投稿成功，等待审核通过，感谢您的参与！",
+              type: "success"
+            });
+            load();
+          }
+        });
+    },
+    [load]
+  );
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <View className="page">
@@ -57,7 +79,7 @@ const Login: Taro.FC<Props> = () => {
       <Button className="mb" type="primary" onClick={load}>
         换一条
       </Button>
-      <Create reload={fallback}>投稿</Create>
+      <Create onOk={handleOk}>投稿</Create>
     </View>
   );
 };

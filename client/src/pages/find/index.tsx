@@ -29,13 +29,30 @@ const Login: Taro.FC<Props> = () => {
         }
       });
   }, []);
+  const handleOk = useCallback(
+    name => {
+      Taro.cloud
+        .callFunction({
+          name: "createTree",
+          data: {
+            name
+          }
+        })
+        .then(res => {
+          if (res && res.result) {
+            load();
+          }
+        });
+    },
+    [load]
+  );
   useEffect(() => {
     load();
   }, [load]);
 
   return (
     <View className="page">
-      <Create reload={load} />
+      <Create onOk={handleOk}>新建</Create>
       <View className="list">
         {data.map((item: IItem) => (
           <View key={item._id}>{item.name}</View>
