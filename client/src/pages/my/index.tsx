@@ -52,11 +52,11 @@ const My: Taro.FC<Props> = () => {
   const [choose, setChoose] = useState<string>("");
   const [step, setStep] = useState<number>(0);
   useEffect(() => {
-    // Taro.getUserInfo({
-    //   success: res => {
-    //     setUserInfo(res.userInfo);
-    //   }
-    // });
+    Taro.getUserInfo({
+      success: res => {
+        setUserInfo(res.userInfo);
+      }
+    });
   }, []);
   const onEnded = useCallback(() => {
     if (step === 0) {
@@ -76,7 +76,9 @@ const My: Taro.FC<Props> = () => {
       <View className="at-row">
         <View className="at-col">
           <AtAvatar image={userInfo.avatarUrl}></AtAvatar>
-          {userInfo.nickName}
+        </View>
+        <View className="at-col">
+          <Text>{userInfo.nickName}</Text>
         </View>
         <View className="at-col">
           <Text></Text>
@@ -96,7 +98,7 @@ const My: Taro.FC<Props> = () => {
           muted={false}
         />
       </View>
-      <div className="choose">
+      <View className="choose">
         {step === 1 ? (
           <AtRadio
             options={[
@@ -128,7 +130,7 @@ const My: Taro.FC<Props> = () => {
           </View>
         ) : null}
         {step === 3 ? <AtButton className="container">下一个</AtButton> : null}
-      </div>
+      </View>
     </View>
   );
 };
