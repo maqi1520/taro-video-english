@@ -52,7 +52,7 @@ const Login: Taro.FC<Props> = () => {
 
   return (
     <View className="page">
-      <Create onOk={handleOk}>新建</Create>
+      <Create onOk={handleOk}>Create</Create>
       <View className="list">
         {data.map((item: IItem) => (
           <View key={item._id}>{item.name}</View>
@@ -63,7 +63,7 @@ const Login: Taro.FC<Props> = () => {
 };
 
 Login.config = {
-  navigationBarTitleText: "搜索"
+  navigationBarTitleText: "read"
 };
 
 export default Login;

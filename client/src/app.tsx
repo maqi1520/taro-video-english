@@ -1,7 +1,7 @@
 import Taro, { Component, Config } from "@tarojs/taro";
 import { Provider } from "@tarojs/redux";
 import store from "./store/createStore";
-import Index from "./pages/index";
+import Index from "./pages/speak/index";
 
 import "./app.scss";
 
@@ -20,7 +20,7 @@ class App extends Component {
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
   config: Config = {
-    pages: ["pages/index/index", "pages/find/index", "pages/my/index"],
+    pages: ["pages/listen/index", "pages/read/index", "pages/speak/index"],
     cloud: true,
     window: {
       backgroundTextStyle: "light",
@@ -30,26 +30,26 @@ class App extends Component {
     },
     tabBar: {
       backgroundColor: "#ffffff",
-      color: "#b3b3b3",
-      selectedColor: "#0c17d8",
+      color: "#333",
+      selectedColor: "#39ac69",
       list: [
         {
-          pagePath: "pages/index/index",
-          text: "首页",
-          iconPath: "./assets/images/home.png",
-          selectedIconPath: "./assets/images/home-selected.png"
+          pagePath: "pages/listen/index",
+          text: "listen",
+          iconPath: "./assets/images/listen.png",
+          selectedIconPath: "./assets/images/listen-s.png"
         },
         {
-          pagePath: "pages/find/index",
-          text: "搜索",
-          iconPath: "./assets/images/search.png",
-          selectedIconPath: "./assets/images/search-selected.png"
+          pagePath: "pages/read/index",
+          text: "read",
+          iconPath: "./assets/images/read.png",
+          selectedIconPath: "./assets/images/read-s.png"
         },
         {
-          pagePath: "pages/my/index",
-          text: "我的",
-          iconPath: "./assets/images/user.png",
-          selectedIconPath: "./assets/images/user-selected.png"
+          pagePath: "pages/speak/index",
+          text: "speak",
+          iconPath: "./assets/images/speak.png",
+          selectedIconPath: "./assets/images/speak-s.png"
         }
       ]
     }

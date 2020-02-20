@@ -1,10 +1,32 @@
-.container {
-  margin-top: 1.5rem;
-}
 .choose {
+  min-height: 50vh;
   padding: 1rem;
+  background-color: #fff;
+  margin-top: 1rem;
+}
+.userinfo {
+  background-color: #39ac69;
+  color: #fff;
+  padding: 0.5rem;
+  text-align: right;
+  display: flex;
+  margin-bottom: 1rem;
+}
+.userinfo-left {
+  width: 50%;
+  flex: 1;
+}
+.userinfo-right {
+  width: 50%;
+  flex: 1;
+  line-height: 1.5rem;
+}
+.switch-label {
+  line-height: 2rem;
+  height: 2rem;
 }
 .subtitle {
+  margin-top: 0.5rem;
   padding: 0.5rem 1.5rem;
   background-color: rgba(0, 0, 0, 0.7);
   border-radius: 0.625rem;
@@ -21,8 +43,8 @@
   border-radius: 0.1875rem;
 }
 .choice-green {
-  background-color: #74e4a2;
-  border-color: #74e4a2;
+  background-color: #07c160;
+  border-color: #07c160;
   color: #fff;
   font-weight: 700;
 }

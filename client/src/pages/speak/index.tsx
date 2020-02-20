@@ -76,16 +76,20 @@ const Login: Taro.FC<Props> = () => {
           />
         ))}
       </View>
-      <Button className="mb" type="primary" onClick={load}>
-        换一条
-      </Button>
+
+      <View>
+        <Button className="mb" type="primary" onClick={load}>
+          换一条
+        </Button>
+      </View>
+
       <Create onOk={handleOk}>投稿</Create>
     </View>
   );
 };
 
 Login.config = {
-  navigationBarTitleText: "屌丝-说话的艺术"
+  navigationBarTitleText: "speak"
 };
 
 export default Login;

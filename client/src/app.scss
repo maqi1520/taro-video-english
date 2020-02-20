@@ -1,7 +1,11 @@
 @import "~taro-ui/dist/style/index.scss"; // 引入组件样式，仅需引入一次即可
 
 .page {
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f8f8f8;
+  color: #333;
 }
 .list {
   padding: 8px;
@@ -10,4 +14,24 @@
 
 .mb {
   margin-bottom: 20px;
+}
+.mt {
+  margin-top: 20px;
+}
+.pull-left {
+  float: left;
+}
+.pull-right {
+  float: right;
+}
+video {
+  display: block;
+}
+.clearfix:after {
+  clear: both;
+  display: block;
+  content: "...";
+  visibility: hidden;
+  height: 0;
+  font-size: 0;
 }
