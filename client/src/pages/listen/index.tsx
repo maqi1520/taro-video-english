@@ -1,6 +1,12 @@
 import Taro, { useState, useEffect, useCallback } from "@tarojs/taro";
-import { View, Text, Video, Button, Switch } from "@tarojs/components";
-import { AtAvatar } from "taro-ui";
+import {
+  View,
+  Text,
+  Video,
+  Button,
+  Switch,
+  OpenData
+} from "@tarojs/components";
 import cl from "classnames";
 import "./index.scss";
 
@@ -12,6 +18,7 @@ interface Ichoices {
 interface Iquestion {
   id: string;
   choices: Ichoices[];
+  countdown: number;
   video: {
     subtitle: string;
     file: string;
@@ -40,8 +47,7 @@ const getQuestion = (): Promise<any> => {
 
 const My: Taro.FC<Props> = () => {
   const [question, setQuestion] = useState<Iquestion | undefined>();
-  const [nextQuestion, setNextQuestion] = useState<Iquestion | undefined>();
-  const [userInfo, setUserInfo] = useState<IuserInfo>({});
+  const [userInfo, setUserInfo] = useState<IuserInfo>();
   const [show, setShow] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [choose, setChoose] = useState<string>("");
@@ -50,20 +56,25 @@ const My: Taro.FC<Props> = () => {
     Taro.showLoading({
       title: "loading"
     });
-    Taro.getUserInfo({
+
+    // 获取用户信息
+    Taro.getSetting({
       success: res => {
-        setUserInfo(res.userInfo);
+        if (res.authSetting["scope.userInfo"]) {
+          // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
+          Taro.getUserInfo({
+            success: res => {
+              console.log(res.userInfo);
+              setUserInfo(res.userInfo);
+            }
+          });
+        }
       }
     });
     getQuestion().then(res => {
       if (res && res.result) {
         setQuestion(res.result.question);
         setLoading(false);
-      }
-    });
-    getQuestion().then(res => {
-      if (res && res.result) {
-        setNextQuestion(res.result.question);
         Taro.hideLoading();
       }
     });
@@ -73,13 +84,16 @@ const My: Taro.FC<Props> = () => {
     setShow(false);
     setStep(0);
     setChoose("");
-    setQuestion(nextQuestion);
     getQuestion().then(res => {
       if (res && res.result) {
-        setNextQuestion(res.result.question);
+        setQuestion(res.result.question);
       }
     });
-  }, [nextQuestion]);
+  }, []);
+  const onGetUserInfo = useCallback(e => {
+    console.log(e.detail.userInfo);
+    setUserInfo(e.detail.userInfo);
+  }, []);
   const onEnded = useCallback(() => {
     if (step === 0) {
       setStep(1);
@@ -92,42 +106,46 @@ const My: Taro.FC<Props> = () => {
     setChoose(value);
     setStep(2);
   }, []);
-  if (loading || !question || !nextQuestion) {
+  if (loading || !question) {
     return null;
   }
   return (
     <View className="page">
       <View className="userinfo">
         <View className="userinfo-left">
-          <AtAvatar
-            size="large"
-            text={userInfo.nickName}
-            image={userInfo.avatarUrl}
-          ></AtAvatar>
+          <View className="avatar">
+            <OpenData type="userAvatarUrl" />
+          </View>
         </View>
         <View className="userinfo-right">
-          <Text>{userInfo.nickName}</Text>
-          <View>
-            Score:<Text>{100}</Text>
-          </View>
+          {!userInfo ? (
+            <Button
+              type="primary"
+              size="mini"
+              onGetUserInfo={onGetUserInfo}
+              openType="getUserInfo"
+            >
+              授权登录
+            </Button>
+          ) : (
+            <View>
+              <View className="user-name">
+                <OpenData type="userNickName" />
+              </View>
+              Score:<Text className="score">{100}</Text>
+            </View>
+          )}
         </View>
       </View>
       <View className="container">
+        <View className="time-container">{question.countdown}</View>
         <Video
-          src={question.video.sources.mp4}
-          controls={true}
-          autoplay={true}
+          src={"http://image.maqib.cn" + question.video.sources.mp4}
+          autoplay
+          controls
           style={{ width: "100%", height: "56.25vw" }}
-          initialTime={0}
           id="video"
           onEnded={onEnded}
-          loop={false}
-          muted={false}
-        />
-        <Video
-          src={nextQuestion.video.sources.mp4}
-          autoplay={false}
-          style={{ display: "none" }}
         />
       </View>
 
@@ -147,6 +165,7 @@ const My: Taro.FC<Props> = () => {
             ) : null}
             {Object.keys(question.choices).map(key => (
               <View
+                key={key}
                 onClick={() => handleChoose(key)}
                 className={cl("choice", {
                   "choice-green":

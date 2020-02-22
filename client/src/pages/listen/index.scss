@@ -1,46 +1,80 @@
 .choose {
   min-height: 50vh;
   padding: 1rem;
-  background-color: #fff;
-  margin-top: 1rem;
+  background-color: #f6f9fc;
 }
 .userinfo {
-  background-color: #39ac69;
-  color: #fff;
+  background-color: #fff;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
   text-align: right;
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 .userinfo-left {
   width: 50%;
   flex: 1;
+  .avatar {
+    box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
+    width: 100px;
+    height: 100px;
+  }
 }
 .userinfo-right {
+  color: rgb(154, 165, 178);
   width: 50%;
   flex: 1;
-  line-height: 1.5rem;
+  line-height: 2.5rem;
+  .user-name {
+    color: rgb(67, 80, 101);
+    margin-right: 0.5rem;
+    font-weight: 700;
+    display: inline-block;
+  }
+  .score {
+    margin-left: 0.2rem;
+    font-weight: 600;
+  }
+}
+.container {
+  position: relative;
+  .time-container {
+    font-size: 0.8rem;
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    width: 80px;
+    height: 80px;
+    z-index: 100;
+    text-align: center;
+    line-height: 80px;
+    background-color: #fff;
+    color: #ff5a57;
+    font-weight: 700;
+    border: 2px solid #ff5a57;
+    border-radius: 40px;
+  }
 }
 .switch-label {
   line-height: 2rem;
   height: 2rem;
+  color: #333;
 }
 .subtitle {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1.5rem;
+  margin-top: 0.6rem;
+  padding: 0.6rem;
   background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 0.625rem;
+  border-radius: 0.4rem;
   color: #fff;
   font-weight: 400;
-  text-align: center;
 }
 .choice {
-  margin-top: 1.5rem;
-  justify-content: center;
-  padding: 1rem 2.5rem;
-  border: 0.0625rem solid #eceff4;
+  margin-top: 0.6rem;
+  padding: 0.6rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
   background-color: hsla(0, 0%, 100%, 0.9);
-  border-radius: 0.1875rem;
+  border-radius: 0.425rem;
+  min-height: 2.8rem;
 }
 .choice-green {
   background-color: #07c160;
