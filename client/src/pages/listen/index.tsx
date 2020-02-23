@@ -1,4 +1,4 @@
-import Taro, { useState, useEffect, useCallback } from "@tarojs/taro";
+import Taro, { useState, useEffect, useCallback, useRef } from "@tarojs/taro";
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   Switch,
   OpenData
 } from "@tarojs/components";
+import { AtMessage } from "taro-ui";
 import cl from "classnames";
 import "./index.scss";
 
@@ -28,8 +29,14 @@ interface Iquestion {
   };
 }
 interface IuserInfo {
+  _id: string;
   nickName?: string;
   avatarUrl?: string;
+  score: {
+    points: number;
+    success: number;
+    fail: number;
+  };
 }
 
 const getQuestion = (): Promise<any> => {
@@ -45,13 +52,29 @@ const getQuestion = (): Promise<any> => {
   });
 };
 
+const getUserProfile = (userInfo): Promise<any> => {
+  return Taro.cloud.callFunction({
+    name: "user_profile",
+    data: {
+      userInfo
+    }
+  });
+};
+
+const randomChoices = () =>
+  ["answer", "distractor"].sort(() => {
+    return Math.random() > 0.5 ? -1 : 1;
+  });
+
 const My: Taro.FC<Props> = () => {
   const [question, setQuestion] = useState<Iquestion | undefined>();
+  const [choices, setChoices] = useState<string[]>([]);
   const [userInfo, setUserInfo] = useState<IuserInfo>();
   const [show, setShow] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [choose, setChoose] = useState<string>("");
   const [step, setStep] = useState<number>(0);
+  const ref = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     Taro.showLoading({
       title: "loading"
@@ -64,8 +87,9 @@ const My: Taro.FC<Props> = () => {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
           Taro.getUserInfo({
             success: res => {
-              console.log(res.userInfo);
-              setUserInfo(res.userInfo);
+              getUserProfile(res.userInfo).then(r => {
+                setUserInfo(r.result);
+              });
             }
           });
         }
@@ -74,11 +98,72 @@ const My: Taro.FC<Props> = () => {
     getQuestion().then(res => {
       if (res && res.result) {
         setQuestion(res.result.question);
+        setChoices(randomChoices());
         setLoading(false);
         Taro.hideLoading();
       }
     });
   }, []);
+  const setScore = useCallback(() => {
+    if (userInfo && question) {
+      let score = { ...userInfo.score };
+      if (choose === "answer") {
+        Taro.atMessage({
+          message: `score +${question.countdown}`,
+          type: "success"
+        });
+        score.points = score.points + question.countdown;
+        score.success = score.success + 1;
+      } else {
+        score.points = score.points - 3;
+        score.fail = score.fail + 1;
+        Taro.atMessage({
+          message: `score -3`,
+          type: "warning"
+        });
+      }
+      setUserInfo({
+        ...userInfo,
+        score
+      });
+      Taro.cloud.callFunction({
+        name: "update_user_profile",
+        data: {
+          _id: userInfo._id,
+          score
+        }
+      });
+    }
+  }, [choose, userInfo, question]);
+  useEffect(() => {
+    if (question) {
+      const countdown = question.countdown - 1;
+      if (step === 1 && !choose && countdown >= 0) {
+        ref.current = setTimeout(() => {
+          const newQuestion = {
+            ...question,
+            countdown
+          };
+          setQuestion(newQuestion);
+        }, 1000);
+      } else {
+        if (ref.current) {
+          clearInterval(ref.current);
+          ref.current = undefined;
+          if (!choose) {
+            setStep(2);
+            setChoose("default");
+          }
+          setScore();
+        }
+      }
+    }
+    return () => {
+      if (ref.current) {
+        clearInterval(ref.current);
+      }
+    };
+  }, [question, choose, step, setScore]);
 
   const load = useCallback(() => {
     setShow(false);
@@ -87,6 +172,7 @@ const My: Taro.FC<Props> = () => {
     getQuestion().then(res => {
       if (res && res.result) {
         setQuestion(res.result.question);
+        setChoices(randomChoices());
       }
     });
   }, []);
@@ -98,7 +184,7 @@ const My: Taro.FC<Props> = () => {
     if (step === 0) {
       setStep(1);
     }
-  }, []);
+  }, [question]);
   const handleChange = useCallback(e => {
     setShow(e.target.value);
   }, []);
@@ -109,8 +195,10 @@ const My: Taro.FC<Props> = () => {
   if (loading || !question) {
     return null;
   }
+
   return (
     <View className="page">
+      <AtMessage />
       <View className="userinfo">
         <View className="userinfo-left">
           <View className="avatar">
@@ -132,13 +220,15 @@ const My: Taro.FC<Props> = () => {
               <View className="user-name">
                 <OpenData type="userNickName" />
               </View>
-              Score:<Text className="score">{100}</Text>
+              Score:<Text className="score">{userInfo.score.points}</Text>
             </View>
           )}
         </View>
       </View>
       <View className="container">
-        <View className="time-container">{question.countdown}</View>
+        {step >= 1 ? (
+          <View className="time-container">{question.countdown}</View>
+        ) : null}
         <Video
           src={"http://image.maqib.cn" + question.video.sources.mp4}
           autoplay
@@ -163,15 +253,17 @@ const My: Taro.FC<Props> = () => {
             {show ? (
               <View className="subtitle">{question.video.subtitle}</View>
             ) : null}
-            {Object.keys(question.choices).map(key => (
+            {choices.map(key => (
               <View
                 key={key}
                 onClick={() => handleChoose(key)}
                 className={cl("choice", {
                   "choice-green":
-                    choose && choose === "answer" && key === "answer",
+                    key === "answer" &&
+                    (choose === "answer" || choose === "default"),
                   "choice-red":
-                    choose && choose !== "answer" && key !== "answer"
+                    key === "distractor" &&
+                    (choose === "distractor" || choose === "default")
                 })}
               >
                 {question.choices[key]}

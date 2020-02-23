@@ -7,6 +7,7 @@ exports.main = async (event) => {
     parentId = 0
   } = event
   const wxContext = cloud.getWXContext()
+  
   const res = await db.collection('tree')
     .where({
       parentId,
