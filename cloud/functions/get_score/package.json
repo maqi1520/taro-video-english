@@ -1,5 +1,5 @@
 {
-  "name": "update_user_profile",
+  "name": "get_score",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

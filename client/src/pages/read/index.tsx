@@ -13,7 +13,7 @@ interface Props {}
 
 const Login: Taro.FC<Props> = () => {
   const [data, setData] = useState<IItem[]>([]);
-  const [userInfo, setUserInfo] = useState<IuserInfo>({});
+  const [, setUserInfo] = useState<IuserInfo>({});
   const load = useCallback(() => {
     Taro.cloud
       .callFunction({

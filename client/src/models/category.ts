@@ -1,10 +1,10 @@
-import { createModel } from '@rematch/core'
+import { createModel } from "@rematch/core";
 
 export default createModel({
-  name: 'category',
+  name: "category",
   state: {
     data: [],
     visible: false
   },
-  reduce: {}
-})
+  reducers: {}
+});
