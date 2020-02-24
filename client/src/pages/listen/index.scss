@@ -16,8 +16,7 @@
   margin-bottom: 0.5rem;
 }
 .userinfo-left {
-  width: 50%;
-  flex: 1;
+  width: 120px;
   .avatar {
     box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
     width: 100px;
@@ -26,7 +25,7 @@
 }
 .userinfo-right {
   color: rgb(154, 165, 178);
-  width: 50%;
+
   flex: 1;
   line-height: 2.5rem;
   .user-name {

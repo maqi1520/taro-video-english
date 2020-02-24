@@ -1,0 +1,21 @@
+.user-list {
+  padding: 1rem 0;
+}
+.user-avatar-td {
+  width: 120px;
+}
+.user-avatar {
+  width: 100px;
+  height: 100px;
+  display: block;
+}
+.user-item {
+  background-color: #fff;
+  display: flex;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.user-td {
+  flex: 1;
+  line-height: 2.5rem;
+}

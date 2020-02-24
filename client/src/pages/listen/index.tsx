@@ -146,6 +146,19 @@ const My: Taro.FC<Props> = () => {
             Score:<Text className="score">{score.points}</Text>
           </View>
         </View>
+        <View className="userinfo-right">
+          <Button
+            onClick={() => {
+              Taro.navigateTo({
+                url: "/pages/ranking/index"
+              });
+            }}
+            size="mini"
+            type="primary"
+          >
+            排行榜
+          </Button>
+        </View>
       </View>
       <View className="container">
         {step >= 1 ? (
