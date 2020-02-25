@@ -1,4 +1,10 @@
-import Taro, { useState, useEffect, useCallback, useRef } from "@tarojs/taro";
+import Taro, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useShareAppMessage
+} from "@tarojs/taro";
 import {
   View,
   Text,
@@ -7,7 +13,7 @@ import {
   Switch,
   OpenData
 } from "@tarojs/components";
-import { AtMessage } from "taro-ui";
+import { AtMessage, AtIcon } from "taro-ui";
 import cl from "classnames";
 import "./index.scss";
 import { useSelector, useDispatch } from "@tarojs/redux";
@@ -23,13 +29,31 @@ const randomChoices = () =>
 const My: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
   const score = useSelector((state: iRootState) => state.score);
-  const question = useSelector((state: iRootState) => state.question);
+  const { question, countdown } = useSelector(
+    (state: iRootState) => state.question
+  );
   const userInfo = useSelector((state: iRootState) => state.userInfo);
   const [choices, setChoices] = useState<string[]>([]);
   const [show, setShow] = useState<boolean>(false);
   const [choose, setChoose] = useState<string>("");
   const [step, setStep] = useState<number>(0);
   const ref = useRef<ReturnType<typeof setTimeout>>();
+  useShareAppMessage((res: any) => {
+    if (res.from === "button") {
+      // 来自页面内转发按钮
+      const { name, id } = res.target.dataset;
+      return {
+        title: name,
+        path: `/page/listen/index?id=${id}`,
+        imageUrl: ""
+      };
+    }
+    return {
+      title: "自定义转发标题",
+      path: "/page/listen/index",
+      imageUrl: ""
+    };
+  });
   useEffect(() => {
     // 获取用户信息
     Taro.getSetting({
@@ -41,6 +65,8 @@ const My: Taro.FC<Props> = () => {
               dispatch({ type: "userInfo/get", payload: res.userInfo });
             }
           });
+        } else {
+          dispatch({ type: "userInfo/get" });
         }
       }
     });
@@ -56,36 +82,36 @@ const My: Taro.FC<Props> = () => {
     [dispatch]
   );
   const setScore = useCallback(() => {
-    if (question) {
-      let newScore = { ...score };
-      if (choose === "answer") {
-        Taro.atMessage({
-          message: `score +${question.countdown}`,
-          type: "success"
-        });
-        newScore.points = score.points + question.countdown;
-        newScore.success = score.success + 1;
-      } else {
-        newScore.points = score.points - 3;
-        newScore.fail = score.fail + 1;
-        Taro.atMessage({
-          message: `score -3`,
-          type: "warning"
-        });
-      }
-      dispatch({ type: "score/update", payload: newScore });
+    let newScore = { ...score };
+    if (choose === "answer") {
+      Taro.atMessage({
+        message: `score +${countdown}`,
+        type: "success"
+      });
+      newScore.points = score.points + countdown;
+      newScore.success = score.success + 1;
+    } else {
+      const failPoints = Math.floor(question.countdown / 2);
+      newScore.points = score.points - failPoints;
+      newScore.fail = score.fail + 1;
+      Taro.atMessage({
+        message: `score -${failPoints}`,
+        type: "warning"
+      });
     }
-  }, [dispatch, choose, score, question]);
+    dispatch({ type: "score/update", payload: newScore });
+  }, [dispatch, question.countdown, choose, score, countdown]);
   useEffect(() => {
-    if (question && userInfo) {
-      const countdown = question.countdown - 1;
-      if (step === 1 && !choose && countdown >= 0) {
+    if (userInfo) {
+      const newCountdown = countdown - 1;
+      if (step === 1 && !choose && newCountdown >= 0) {
         ref.current = setTimeout(() => {
-          const newQuestion = {
-            ...question,
-            countdown
-          };
-          dispatch({ type: "question/save", payload: newQuestion });
+          dispatch({
+            type: "question/save",
+            payload: {
+              countdown: newCountdown
+            }
+          });
         }, 1000);
       } else {
         if (ref.current) {
@@ -104,7 +130,7 @@ const My: Taro.FC<Props> = () => {
         clearInterval(ref.current);
       }
     };
-  }, [question, userInfo, dispatch, choose, step, setScore]);
+  }, [countdown, userInfo, dispatch, choose, step, setScore]);
 
   const load = useCallback(() => {
     setShow(false);
@@ -114,20 +140,49 @@ const My: Taro.FC<Props> = () => {
     setChoices(randomChoices());
   }, [dispatch]);
   const onEnded = useCallback(() => {
+    dispatch({ type: "question/updateViews", payload: question });
     if (step === 0) {
       setStep(1);
     }
-  }, []);
+  }, [dispatch, question]);
   const handleChange = useCallback(e => {
     setShow(e.target.value);
   }, []);
-  const handleChoose = useCallback(value => {
-    setChoose(value);
-    setStep(2);
-  }, []);
-  if (!question) {
+  const handleChoose = useCallback(
+    value => {
+      if (!choose) {
+        setChoose(value);
+        setStep(2);
+      }
+    },
+    [choose]
+  );
+  const onStar = useCallback(() => {
+    const questionId = question._id;
+    const userId = userInfo._id;
+    const stars = question.stars + 1;
+    const userStars = [...userInfo.stars, questionId];
+    dispatch({
+      type: "userInfo/updateStar",
+      payload: { questionId, stars, userId, userStars }
+    });
+  }, [userInfo.stars, question._id, userInfo._id, userInfo.stars, dispatch]);
+  const unStar = useCallback(() => {
+    console.log(question.stars);
+
+    const questionId = question._id;
+    const userId = userInfo._id;
+    const stars = question.stars - 1;
+    let userStars = userInfo.stars.filter(id => id !== questionId);
+    dispatch({
+      type: "userInfo/updateStar",
+      payload: { questionId, stars, userId, userStars }
+    });
+  }, [userInfo.stars, question._id, userInfo._id, userInfo.stars, dispatch]);
+  if (!question.video) {
     return null;
   }
+  console.log(userInfo);
 
   return (
     <View className="page">
@@ -143,7 +198,9 @@ const My: Taro.FC<Props> = () => {
             <View className="user-name">
               <OpenData type="userNickName" />
             </View>
-            Score:<Text className="score">{score.points}</Text>
+            <Text>
+              Score:<Text className="score">{score.points}</Text>
+            </Text>
           </View>
         </View>
         <View className="userinfo-right">
@@ -161,19 +218,48 @@ const My: Taro.FC<Props> = () => {
         </View>
       </View>
       <View className="container">
-        {step >= 1 ? (
-          <View className="time-container">{question.countdown}</View>
-        ) : null}
+        {step >= 1 ? <View className="time-container">{countdown}</View> : null}
         <Video
           src={"http://image.maqib.cn" + question.video.sources.mp4}
-          autoplay
+          autoplay={false}
           controls
           style={{ width: "100%", height: "56.25vw" }}
           id="video"
           onEnded={onEnded}
         />
+        <View className="video-desc clearfix">
+          <View className="video-name">
+            <View>{question.video.metadata.name}</View>
+          </View>
+          <View className="video-icon">
+            <AtIcon size="20" value="eye"></AtIcon>
+            <Text>{question.video.metadata.views}</Text>
+          </View>
+          {userInfo.stars.indexOf(question._id) > -1 ? (
+            <View onClick={unStar} className="video-icon active">
+              <AtIcon size="19" color="#F00" value="star" />
+              <Text>{question.stars}</Text>
+            </View>
+          ) : (
+            <View onClick={onStar} className="video-icon">
+              <AtIcon size="19" value="star" />
+              <Text>{question.stars}</Text>
+            </View>
+          )}
+          <Button
+            className="pull-right"
+            data-name={question.video.metadata.name}
+            data-id={question._id}
+            type="primary"
+            size="mini"
+            openType="share"
+          >
+            <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
+            <Text> share</Text>
+          </Button>
+        </View>
       </View>
-      {!userInfo ? (
+      {!userInfo.nickName ? (
         <View className="login-container">
           <Button
             type="primary"

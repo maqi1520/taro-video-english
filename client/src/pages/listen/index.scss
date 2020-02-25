@@ -21,13 +21,15 @@
     box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
     width: 100px;
     height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
   }
 }
 .userinfo-right {
   color: rgb(154, 165, 178);
-
   flex: 1;
-  line-height: 2.5rem;
+  padding-top: 30px;
+  line-height: 2.3;
   .user-name {
     color: rgb(67, 80, 101);
     margin-right: 0.5rem;
@@ -56,6 +58,30 @@
     font-weight: 700;
     border: 2px solid #ff5a57;
     border-radius: 40px;
+  }
+  .video-desc {
+    padding: 0.5rem;
+    .video-name {
+      line-height: 2.5rem;
+      color: rgb(67, 80, 101);
+      margin-right: 0.5rem;
+      font-weight: 700;
+    }
+    .video-icon {
+      &.active {
+        color: #f00;
+      }
+      line-height: 2rem;
+      display: inline-block;
+      margin-right: 1rem;
+      .at-icon {
+        vertical-align: -2px;
+        margin-right: 0.2rem;
+      }
+    }
+    background-color: #fff;
+    color: rgb(154, 165, 178);
+    box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
   }
 }
 .switch-label {

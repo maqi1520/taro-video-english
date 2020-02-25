@@ -6,6 +6,13 @@ export type IScore = {
   success: number;
   fail: number;
 };
+
+interface IScoreRes {
+  errMsg: string;
+  result: {
+    _id: string;
+  };
+}
 export default createModel({
   state: {
     points: 0,
@@ -34,7 +41,7 @@ export default createModel({
         }
       });
       this.save({
-        _id: res.result._id,
+        _id: (res as IScoreRes).result._id,
         ...score
       });
     }

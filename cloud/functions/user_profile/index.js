@@ -14,17 +14,37 @@ exports.main = async (event) => {
       openId: wxContext.OPENID, // 填入当前用户 openid
     })
     .get()
-  if(res.data.length > 0) {
-    return res.data[0]
-  }
-  else {
-    const data = {
-      ...userInfo,
-      openId: wxContext.OPENID,
+  if (res.data.length > 0) {
+    if (userInfo && !res.data[0].nickName) {
+      await db.collection('user_profile').doc(res.data[0]._id).update({
+        data: userInfo
+      })
+      return {
+        ...userInfo,
+        _id: res.data[0]._id,
+        openId: wxContext.OPENID,
+      }
     }
-   const addRes= await db.collection('user_profile').add({
+    return res.data[0]
+  } else {
+    let data = {}
+    if (!userInfo) {
+      data = {
+        stars:[],
+        openId: wxContext.OPENID,
+      }
+    } else {
+      data = {
+        ...userInfo,
+        openId: wxContext.OPENID
+      }
+    }
+    const addRes = await db.collection('user_profile').add({
       data
     })
-    return { ...data, _id: addRes._id}
+    return {
+      ...data,
+      _id: addRes._id
+    }
   }
 }

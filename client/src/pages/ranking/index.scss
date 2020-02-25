@@ -8,14 +8,16 @@
   width: 100px;
   height: 100px;
   display: block;
+  margin: 0 auto;
 }
 .user-item {
+  margin-top: 0.5rem;
   background-color: #fff;
   display: flex;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
-
 .user-td {
+  text-align: center;
   flex: 1;
-  line-height: 2.5rem;
+  line-height: 100px;
 }

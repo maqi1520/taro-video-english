@@ -1,5 +1,5 @@
 import Taro, { useEffect } from "@tarojs/taro";
-import { View, Image } from "@tarojs/components";
+import { View, Image, Text } from "@tarojs/components";
 import { useSelector, useDispatch } from "@tarojs/redux";
 import { iRootState, Dispatch } from "../../store/createStore";
 import "./index.scss";
@@ -18,22 +18,35 @@ const RankingList: Taro.FC<Props> = () => {
   return (
     <View className="page">
       <View className="user-list">
-        <View className="user-item" key={item._id}>
-          <View className="user-td">NO</View>
-          <View className="user-td">avatar</View>
-          <View className="user-td">nickName</View>
-          <View className="user-td">score</View>
-          <View className="user-td">success</View>
+        <View className="user-item">
+          <View className="user-td">
+            <Text>NO</Text>
+          </View>
+          <View className="user-td">
+            {" "}
+            <Text>avatar</Text>
+          </View>
+          <View className="user-td">
+            <Text>nickName</Text>
+          </View>
+          <View className="user-td">
+            <Text>Score</Text>
+          </View>
         </View>
         {data.map((item, i) => (
           <View className="user-item" key={item._id}>
-            <View className="user-td">{i + 1}</View>
+            <View className="user-td">
+              <Text>{i + 1}</Text>
+            </View>
             <View className="user-td">
               <Image className="user-avatar" src={item.avatarUrl} />
             </View>
-            <View className="user-td">{item.nickName}</View>
-            <View className="user-td">{item.points}</View>
-            <View className="user-td">{item.success}</View>
+            <View className="user-td">
+              <Text>{item.nickName}</Text>
+            </View>
+            <View className="user-td">
+              <Text>{item.points}</Text>
+            </View>
           </View>
         ))}
       </View>
