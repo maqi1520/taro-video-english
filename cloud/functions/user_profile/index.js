@@ -30,6 +30,7 @@ exports.main = async (event) => {
     let data = {}
     if (!userInfo) {
       data = {
+        wrongs:[],
         stars:[],
         openId: wxContext.OPENID,
       }

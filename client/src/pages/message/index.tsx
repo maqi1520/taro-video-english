@@ -63,7 +63,7 @@ const Login: Taro.FC<Props> = () => {
 };
 
 Login.config = {
-  navigationBarTitleText: "read"
+  navigationBarTitleText: "Message"
 };
 
 export default Login;

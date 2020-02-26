@@ -9,13 +9,11 @@ interface IItem {
   _id: string;
   content: string;
 }
-interface IuserInfo {}
 
 interface Props {}
 
 const Login: Taro.FC<Props> = () => {
   const [data, setData] = useState<IItem[]>([]);
-  const [userInfo, setUserInfo] = useState<IuserInfo>({});
   const load = useCallback(() => {
     Taro.cloud
       .callFunction({
@@ -25,7 +23,6 @@ const Login: Taro.FC<Props> = () => {
       .then(res => {
         if (res && res.result) {
           setData(res.result.data);
-          setUserInfo(res.result.userInfo);
         }
       });
   }, []);
@@ -79,17 +76,17 @@ const Login: Taro.FC<Props> = () => {
 
       <View>
         <Button className="mb" type="primary" onClick={load}>
-          换一条
+          Next
         </Button>
       </View>
 
-      <Create onOk={handleOk}>投稿</Create>
+      <Create onOk={handleOk}>Send</Create>
     </View>
   );
 };
 
 Login.config = {
-  navigationBarTitleText: "speak"
+  navigationBarTitleText: "Honeyed words"
 };
 
 export default Login;

@@ -13,21 +13,40 @@ const random = function (min, max) {
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const {
-    product_name,
-    group_name,
-    current_question_id,
-    video_id,
-    language_code
+    id,
+    stars,
+    wrongs
   } = event
+
+  if(stars||wrongs){
+    const res= await db.collection('voscreen').where({
+      _id:_.in(stars||wrongs)
+    })
+    .get()
+    return {
+      data:res.data,
+      openid: wxContext.OPENID,
+      appid: wxContext.APPID,
+      unionid: wxContext.UNIONID,
+    }
+  }
+
   const countResult = await db.collection('voscreen').count()
   const total = countResult.total
-  const res = await db.collection('voscreen')
-    .skip(random(0, total))
-    .limit(1)
-    .get()
+  let question;
+  if (id) {
+    const res = await db.collection('voscreen').doc(id).get()
+    question = res.data
+  } else {
+    res = await db.collection('voscreen')
+      .skip(random(0, total))
+      .limit(1)
+      .get()
+    question = res.data[0]
+  }
 
   return {
-    question: res.data[0],
+    question,
     event,
     openid: wxContext.OPENID,
     appid: wxContext.APPID,

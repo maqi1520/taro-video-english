@@ -54,10 +54,12 @@ export default createModel({
     })
   },
   effects: () => ({
-    async get(): Promise<void> {
+    async get({ id }): Promise<void> {
       const res = await Taro.cloud.callFunction({
         name: "voscreen",
-        data: {}
+        data: {
+          id
+        }
       });
       const question = (res as IquestionRes).result.question;
       this.save({

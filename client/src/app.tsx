@@ -1,11 +1,11 @@
 import Taro, { Component, Config } from "@tarojs/taro";
 import { Provider } from "@tarojs/redux";
 import store from "./store/createStore";
-import Index from "./pages/speak/index";
+import Index from "./pages/listen/index";
 
 import "./app.scss";
 
-// 如果需要在 h5 环境中开启 React Devtools
+// 如果需要在 h5 环境中开启 React Devtools;
 // 取消以下注释：
 // if (process.env.NODE_ENV !== 'production' && process.env.TARO_ENV === 'h5')  {
 //   require('nerv-devtools')
@@ -22,9 +22,11 @@ class App extends Component {
   config: Config = {
     pages: [
       "pages/listen/index",
-      "pages/read/index",
-      "pages/speak/index",
-      "pages/ranking/index"
+      "pages/message/index",
+      "pages/words/index",
+      "pages/me/index",
+      "pages/ranking/index",
+      "pages/wrongs/index"
     ],
     cloud: true,
     window: {
@@ -45,16 +47,10 @@ class App extends Component {
           selectedIconPath: "./assets/images/listen-s.png"
         },
         {
-          pagePath: "pages/read/index",
-          text: "read",
-          iconPath: "./assets/images/read.png",
-          selectedIconPath: "./assets/images/read-s.png"
-        },
-        {
-          pagePath: "pages/speak/index",
-          text: "speak",
-          iconPath: "./assets/images/speak.png",
-          selectedIconPath: "./assets/images/speak-s.png"
+          pagePath: "pages/me/index",
+          text: "Me",
+          iconPath: "./assets/images/me.png",
+          selectedIconPath: "./assets/images/me-s.png"
         }
       ]
     }
@@ -63,6 +59,22 @@ class App extends Component {
   componentDidMount() {
     if (process.env.TARO_ENV === "weapp") {
       Taro.cloud.init();
+      const { dispatch } = store;
+      // 获取用户信息
+      Taro.getSetting({
+        success: res => {
+          if (res.authSetting["scope.userInfo"]) {
+            // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
+            Taro.getUserInfo({
+              success: res => {
+                dispatch({ type: "userInfo/get", payload: res.userInfo });
+              }
+            });
+          } else {
+            dispatch({ type: "userInfo/get" });
+          }
+        }
+      });
     }
   }
 

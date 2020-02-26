@@ -6,10 +6,12 @@ export interface IuserInfo {
   nickName?: string;
   avatarUrl?: string;
   stars: string[];
+  wrongs: string[];
 }
 export default createModel<IuserInfo>({
   state: {
-    stars: []
+    stars: [],
+    wrongs: []
   },
   reducers: {
     save: (state: IuserInfo, payload: IuserInfo) => ({
@@ -28,8 +30,6 @@ export default createModel<IuserInfo>({
       this.save(res.result);
     },
     async updateStar({ questionId, stars, userId, userStars }): Promise<void> {
-      console.log(questionId, stars, userId, userStars);
-
       dispatch({ type: "question/updateStar", payload: stars });
       this.save({
         stars: userStars
@@ -43,6 +43,23 @@ export default createModel<IuserInfo>({
           userStars
         }
       });
+    },
+    async updateWrongs({ questionId }, rootState): Promise<void> {
+      const wrongs = [...rootState.userInfo.wrongs];
+      const userId = rootState.userInfo._id;
+      if (!wrongs.includes(questionId)) {
+        wrongs.push(questionId);
+        await Taro.cloud.callFunction({
+          name: "update_stars",
+          data: {
+            userId,
+            wrongs
+          }
+        });
+        this.save({
+          wrongs
+        });
+      }
     }
   })
 });

@@ -3,16 +3,10 @@ import Taro, {
   useEffect,
   useCallback,
   useRef,
-  useShareAppMessage
+  useShareAppMessage,
+  useRouter
 } from "@tarojs/taro";
-import {
-  View,
-  Text,
-  Video,
-  Button,
-  Switch,
-  OpenData
-} from "@tarojs/components";
+import { View, Text, Video, Button, Switch } from "@tarojs/components";
 import { AtMessage, AtIcon } from "taro-ui";
 import cl from "classnames";
 import "./index.scss";
@@ -44,36 +38,17 @@ const My: Taro.FC<Props> = () => {
       const { name, id } = res.target.dataset;
       return {
         title: name,
-        path: `/page/listen/index?id=${id}`,
+        path: "/pages/listen/index?id=" + id,
         imageUrl: ""
       };
     }
-    return {
-      title: "自定义转发标题",
-      path: "/page/listen/index",
-      imageUrl: ""
-    };
   });
+  const router = useRouter();
   useEffect(() => {
-    // 获取用户信息
-    Taro.getSetting({
-      success: res => {
-        if (res.authSetting["scope.userInfo"]) {
-          // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
-          Taro.getUserInfo({
-            success: res => {
-              dispatch({ type: "userInfo/get", payload: res.userInfo });
-            }
-          });
-        } else {
-          dispatch({ type: "userInfo/get" });
-        }
-      }
-    });
     dispatch({ type: "score/get" });
-    dispatch({ type: "question/get" });
+    dispatch({ type: "question/get", payload: { id: router.params.id } });
     setChoices(randomChoices());
-  }, [dispatch]);
+  }, [dispatch, router.params]);
   const onGetUserInfo = useCallback(
     e => {
       console.log(e.detail.userInfo);
@@ -94,13 +69,17 @@ const My: Taro.FC<Props> = () => {
       const failPoints = Math.floor(question.countdown / 2);
       newScore.points = score.points - failPoints;
       newScore.fail = score.fail + 1;
+      dispatch({
+        type: "userInfo/updateWrongs",
+        payload: { questionId: question._id }
+      });
       Taro.atMessage({
         message: `score -${failPoints}`,
         type: "warning"
       });
     }
     dispatch({ type: "score/update", payload: newScore });
-  }, [dispatch, question.countdown, choose, score, countdown]);
+  }, [dispatch, question.countdown, question._id, choose, score, countdown]);
   useEffect(() => {
     if (userInfo) {
       const newCountdown = countdown - 1;
@@ -136,7 +115,7 @@ const My: Taro.FC<Props> = () => {
     setShow(false);
     setStep(0);
     setChoose("");
-    dispatch({ type: "question/get" });
+    dispatch({ type: "question/get", payload: {} });
     setChoices(randomChoices());
   }, [dispatch]);
   const onEnded = useCallback(() => {
@@ -168,8 +147,6 @@ const My: Taro.FC<Props> = () => {
     });
   }, [userInfo.stars, question._id, userInfo._id, userInfo.stars, dispatch]);
   const unStar = useCallback(() => {
-    console.log(question.stars);
-
     const questionId = question._id;
     const userId = userInfo._id;
     const stars = question.stars - 1;
@@ -182,41 +159,10 @@ const My: Taro.FC<Props> = () => {
   if (!question.video) {
     return null;
   }
-  console.log(userInfo);
 
   return (
     <View className="page">
       <AtMessage />
-      <View className="userinfo">
-        <View className="userinfo-left">
-          <View className="avatar">
-            <OpenData type="userAvatarUrl" />
-          </View>
-        </View>
-        <View className="userinfo-right">
-          <View>
-            <View className="user-name">
-              <OpenData type="userNickName" />
-            </View>
-            <Text>
-              Score:<Text className="score">{score.points}</Text>
-            </Text>
-          </View>
-        </View>
-        <View className="userinfo-right">
-          <Button
-            onClick={() => {
-              Taro.navigateTo({
-                url: "/pages/ranking/index"
-              });
-            }}
-            size="mini"
-            type="primary"
-          >
-            排行榜
-          </Button>
-        </View>
-      </View>
       <View className="container">
         {step >= 1 ? <View className="time-container">{countdown}</View> : null}
         <Video

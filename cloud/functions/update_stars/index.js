@@ -12,16 +12,30 @@ exports.main = async (event, context) => {
     questionId,
     stars,
     userId,
-    userStars
+    userStars,
+    wrongs,
   } = event
-  const res=await db.collection('voscreen').doc(questionId).update({
-    data:{
-      stars
-    }
-  })
-  return await db.collection('user_profile').doc(userId).update({
-    data:{
-      stars:userStars
-    }
-  }) 
+  if(questionId){
+    const res=await db.collection('voscreen').doc(questionId).update({
+      data:{
+        stars
+      }
+    })
+
+  }
+  if(userId && userStars){
+    return await db.collection('user_profile').doc(userId).update({
+      data:{
+        stars:userStars
+      }
+    }) 
+  }
+  if(userId && wrongs){
+    return await db.collection('user_profile').doc(userId).update({
+      data:{
+        wrongs:wrongs
+      }
+    }) 
+  }
+  return userId
 }
