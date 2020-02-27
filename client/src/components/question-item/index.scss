@@ -1,0 +1,45 @@
+.weui-swiped-btn {
+  display: block;
+  padding: 10px 1em;
+  line-height: 1.47058824;
+  color: inherit;
+}
+.weui-swiped-btn_warn {
+  color: #fff;
+  background-color: #ff3b30;
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+}
+.question-container {
+  background-color: #fff;
+  margin-bottom: 2rem;
+  box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
+  .video-container {
+    position: relative;
+    .sub-title {
+      bottom: 2.4rem;
+      position: absolute;
+      width: 100%;
+      color: #fff;
+      font-size: 0.5rem;
+      padding: 0 1rem;
+    }
+  }
+  .video-desc {
+    position: relative;
+    padding: 0.5rem;
+    .video-name {
+      line-height: 2.5rem;
+      color: rgb(67, 80, 101);
+      margin-right: 0.5rem;
+      font-weight: 700;
+    }
+    .video-answer {
+      font-size: 0.5rem;
+    }
+    background-color: #fff;
+    color: rgb(154, 165, 178);
+    box-shadow: 0 0.125rem 0.125rem 0 rgba(0, 0, 0, 0.1);
+  }
+}

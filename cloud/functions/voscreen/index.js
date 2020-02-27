@@ -22,6 +22,7 @@ exports.main = async (event, context) => {
     const res= await db.collection('voscreen').where({
       _id:_.in(stars||wrongs)
     })
+    .limit(10)
     .get()
     return {
       data:res.data,

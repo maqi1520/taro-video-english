@@ -60,6 +60,7 @@ class App extends Component {
     if (process.env.TARO_ENV === "weapp") {
       Taro.cloud.init();
       const { dispatch } = store;
+      dispatch({ type: "score/get" });
       // 获取用户信息
       Taro.getSetting({
         success: res => {

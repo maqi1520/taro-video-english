@@ -45,7 +45,6 @@ const My: Taro.FC<Props> = () => {
   });
   const router = useRouter();
   useEffect(() => {
-    dispatch({ type: "score/get" });
     dispatch({ type: "question/get", payload: { id: router.params.id } });
     setChoices(randomChoices());
   }, [dispatch, router.params]);
@@ -168,7 +167,7 @@ const My: Taro.FC<Props> = () => {
         <Video
           src={"http://image.maqib.cn" + question.video.sources.mp4}
           autoplay={false}
-          controls
+          controls={false}
           style={{ width: "100%", height: "56.25vw" }}
           id="video"
           onEnded={onEnded}

@@ -3,9 +3,12 @@ import { View, Text, Button, OpenData } from "@tarojs/components";
 import { AtList, AtListItem } from "taro-ui";
 import "./index.scss";
 
+import { useSelector } from "@tarojs/redux";
+import { iRootState } from "../../store/createStore";
 interface Props {}
 
 const Me: Taro.FC<Props> = () => {
+  const score = useSelector((state: iRootState) => state.score);
   return (
     <View className="page">
       <View className="userinfo">
@@ -20,7 +23,7 @@ const Me: Taro.FC<Props> = () => {
               <OpenData type="userNickName" />
             </View>
             <Text>
-              Score:<Text className="score">100</Text>
+              Score:<Text className="score">{score.points}</Text>
             </Text>
           </View>
         </View>

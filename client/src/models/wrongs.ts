@@ -21,7 +21,16 @@ export default createModel<Istate>({
     save: (state: Istate, payload: Istate) => ({
       ...state,
       ...payload
-    })
+    }),
+    remove: (state: Istate, { questionId }) => {
+      console.log(questionId);
+
+      const data = state.data.filter(question => question._id !== questionId);
+      return {
+        ...state,
+        data
+      };
+    }
   },
   effects: () => ({
     async query({ stars, wrongs }): Promise<void> {

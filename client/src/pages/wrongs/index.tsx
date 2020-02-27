@@ -1,6 +1,6 @@
 import Taro, { useEffect, useRouter } from "@tarojs/taro";
-import { View, Text, Video, Button } from "@tarojs/components";
-import { AtIcon } from "taro-ui";
+import { View } from "@tarojs/components";
+import QuestionItem from "../../components/question-item";
 import "./index.scss";
 import { useSelector, useDispatch } from "@tarojs/redux";
 import { iRootState, Dispatch } from "../../store/createStore";
@@ -12,11 +12,10 @@ const Wrongs: Taro.FC<Props> = () => {
   const userInfo = useSelector((state: iRootState) => state.userInfo);
   const data = useSelector((state: iRootState) => state.wrongs.data);
   const router = useRouter();
-
   useEffect(() => {
     if (router.params.type === "stars") {
       Taro.setNavigationBarTitle({
-        title: "My  stars"
+        title: "My Stars"
       });
       dispatch({
         type: "wrongs/query",
@@ -26,7 +25,7 @@ const Wrongs: Taro.FC<Props> = () => {
       });
     } else {
       Taro.setNavigationBarTitle({
-        title: "My  wrongs"
+        title: "My Wrongs"
       });
       dispatch({
         type: "wrongs/query",
@@ -46,40 +45,16 @@ const Wrongs: Taro.FC<Props> = () => {
         }
       });
     };
-  }, [dispatch, userInfo, router.params]);
+  }, [dispatch, router.params]);
 
   return (
     <View className="page">
       {data.map(question => (
-        <View key={question._id} className="container">
-          <Video
-            src={"http://image.maqib.cn" + question.video.sources.mp4}
-            autoplay={false}
-            controls
-            style={{ width: "100%", height: "56.25vw" }}
-            id="video"
-          />
-          <View className="video-desc clearfix">
-            <View className="video-name">
-              <View>{question.video.metadata.name}</View>
-            </View>
-            <View className="video-icon">
-              <AtIcon size="20" value="eye"></AtIcon>
-              <Text>{question.video.metadata.views}</Text>
-            </View>
-            <Button
-              className="pull-right"
-              data-name={question.video.metadata.name}
-              data-id={question._id}
-              type="primary"
-              size="mini"
-              openType="share"
-            >
-              <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
-              <Text> share</Text>
-            </Button>
-          </View>
-        </View>
+        <QuestionItem
+          type={router.params.type}
+          key={question._id}
+          question={question}
+        />
       ))}
     </View>
   );

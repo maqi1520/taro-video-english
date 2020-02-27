@@ -45,21 +45,42 @@ export default createModel<IuserInfo>({
       });
     },
     async updateWrongs({ questionId }, rootState): Promise<void> {
-      const wrongs = [...rootState.userInfo.wrongs];
+      let wrongs = [...rootState.userInfo.wrongs];
       const userId = rootState.userInfo._id;
       if (!wrongs.includes(questionId)) {
         wrongs.push(questionId);
-        await Taro.cloud.callFunction({
-          name: "update_stars",
-          data: {
-            userId,
-            wrongs
-          }
-        });
-        this.save({
-          wrongs
-        });
+      } else {
+        wrongs = wrongs.filter(id => id !== questionId);
       }
+      await Taro.cloud.callFunction({
+        name: "update_stars",
+        data: {
+          userId,
+          wrongs
+        }
+      });
+      this.save({
+        wrongs
+      });
+    },
+    async updateUserStars({ questionId }, rootState): Promise<void> {
+      let stars = [...rootState.userInfo.stars];
+      const userId = rootState.userInfo._id;
+      if (!stars.includes(questionId)) {
+        stars.push(questionId);
+      } else {
+        stars = stars.filter(id => id !== questionId);
+      }
+      await Taro.cloud.callFunction({
+        name: "update_stars",
+        data: {
+          userId,
+          userStars: stars
+        }
+      });
+      this.save({
+        stars
+      });
     }
   })
 });

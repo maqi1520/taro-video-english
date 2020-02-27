@@ -7,7 +7,10 @@ export interface Ichoices {
 export interface Iquestion {
   _id: string;
   id: string;
-  choices: Ichoices[];
+  choices: {
+    answer: string;
+    distractor: string;
+  };
   countdown: number;
   stars: number;
   video: {
@@ -69,7 +72,7 @@ export default createModel({
     },
     async updateViews(payload): Promise<void> {
       const views = parseInt(payload.video.metadata.views) + 1;
-      const res = await Taro.cloud.callFunction({
+      await Taro.cloud.callFunction({
         name: "update_voscreen",
         data: {
           _id: payload._id,
