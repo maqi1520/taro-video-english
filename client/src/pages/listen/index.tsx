@@ -167,7 +167,6 @@ const My: Taro.FC<Props> = () => {
         <Video
           src={"http://image.maqib.cn" + question.video.sources.mp4}
           autoplay={false}
-          controls={false}
           style={{ width: "100%", height: "56.25vw" }}
           id="video"
           onEnded={onEnded}
