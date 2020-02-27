@@ -18,11 +18,13 @@
   .video-container {
     position: relative;
     .sub-title {
-      bottom: 2.4rem;
+      bottom: 2.5rem;
       position: absolute;
-      width: 100%;
+      left: 0;
+      right: 0;
+      width: 90%;
       color: #fff;
-      font-size: 0.5rem;
+      font-size: 0.8rem;
       padding: 0 1rem;
     }
   }
@@ -36,7 +38,7 @@
       font-weight: 700;
     }
     .video-answer {
-      font-size: 0.5rem;
+      font-size: 0.8rem;
     }
     background-color: #fff;
     color: rgb(154, 165, 178);

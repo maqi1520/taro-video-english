@@ -11,7 +11,6 @@ interface Props {
 }
 
 const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
-  const [playing, setPlaying] = useState(false);
   const dispatch = useDispatch<Dispatch>();
   const onRemove = useCallback(
     questionId => {
@@ -48,15 +47,7 @@ const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
           autoplay={false}
           style={{ width: "100%", height: "56.25vw" }}
           showCenterPlayBtn
-          showPlayBtn={false}
-          onPlay={() => setPlaying(true)}
-          onEnded={() => setPlaying(false)}
         />
-        {playing ? (
-          <View className="sub-title">
-            <View>{question.video.subtitle}</View>
-          </View>
-        ) : null}
       </View>
 
       <View className="video-desc clearfix">
@@ -64,6 +55,7 @@ const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
           <View>{question.video.metadata.name}</View>
         </View>
         <View className="video-answer">
+          <View>{question.video.subtitle}</View>
           <View>{question.choices.answer}</View>
         </View>
         <View
