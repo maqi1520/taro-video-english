@@ -25,6 +25,9 @@ exports.main = async (event, context) => {
     .project({
       question: 0
     })
+    .sort({
+      createAt:-1
+    })
     .end()
     return {
       data:res.list,

@@ -1,5 +1,12 @@
 import Taro, { useState, useEffect, useCallback } from "@tarojs/taro";
-import { Text, View, ScrollView, Image, Input } from "@tarojs/components";
+import {
+  Text,
+  View,
+  ScrollView,
+  Image,
+  Input,
+  Button
+} from "@tarojs/components";
 import Loading from "../../components/loading/index";
 import "./index.scss";
 import { format } from "timeago.js";
@@ -37,8 +44,13 @@ const Login: Taro.FC<Props> = () => {
   }, [total, pageSize, pageNum, load]);
   useEffect(() => {
     load();
+    return () => {
+      dispatch({
+        type: "message/save",
+        payload: { data: [], loading: true, pageNum: 1 }
+      });
+    };
   }, [load]);
-  console.log(data);
 
   const scrollTop = 0;
   const Threshold = 50;
@@ -78,8 +90,10 @@ const Login: Taro.FC<Props> = () => {
               value={message}
               onInput={handleChange}
             />
-            <View onClick={handleOk} className="btn-send">
-              <Text>send</Text>
+            <View className="btn-send">
+              <Button onClick={handleOk} size="mini" type="primary">
+                send
+              </Button>
             </View>
           </View>
         </View>
