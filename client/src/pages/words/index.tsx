@@ -1,6 +1,6 @@
 import Taro, { useState, useEffect, useCallback } from "@tarojs/taro";
 import { View, Button } from "@tarojs/components";
-
+import Loading from "../../components/loading/index";
 import { AtTextarea, AtMessage } from "taro-ui";
 import Create from "../../components/tree/Create";
 import "./index.scss";
@@ -10,10 +10,18 @@ interface IItem {
   content: string;
 }
 
+interface IRes {
+  errMsg: string;
+  result: {
+    data: IItem[];
+  };
+}
+
 interface Props {}
 
 const Login: Taro.FC<Props> = () => {
   const [data, setData] = useState<IItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const load = useCallback(() => {
     Taro.cloud
       .callFunction({
@@ -22,7 +30,8 @@ const Login: Taro.FC<Props> = () => {
       })
       .then(res => {
         if (res && res.result) {
-          setData(res.result.data);
+          setData((res as IRes).result.data);
+          setLoading(false);
         }
       });
   }, []);
@@ -61,26 +70,26 @@ const Login: Taro.FC<Props> = () => {
   return (
     <View className="page">
       <AtMessage />
-      <View className="list">
-        {data.map((item: IItem) => (
-          <AtTextarea
-            onChange={() => {}}
-            key={item._id}
-            value={item.content}
-            count={false}
-            autoHeight
-            disabled
-          />
-        ))}
-      </View>
+      <Loading show={loading}>
+        <View className="list">
+          {data.map((item: IItem) => (
+            <AtTextarea
+              onChange={() => {}}
+              key={item._id}
+              value={item.content}
+              count={false}
+              disabled
+            />
+          ))}
+        </View>
 
-      <View>
-        <Button className="mb" type="primary" onClick={load}>
-          Next
-        </Button>
-      </View>
-
-      <Create onOk={handleOk}>Send</Create>
+        <View>
+          <Button className="mb" type="primary" onClick={load}>
+            Next
+          </Button>
+        </View>
+        <Create onOk={handleOk}>Send</Create>
+      </Loading>
     </View>
   );
 };

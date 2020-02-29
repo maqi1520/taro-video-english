@@ -1,108 +1,90 @@
 import Taro, { useState, useEffect, useCallback } from "@tarojs/taro";
-import { Button, View } from "@tarojs/components";
-import { AtTextarea, AtCard } from "taro-ui";
+import { Text, View, ScrollView, Image, Input } from "@tarojs/components";
+import Loading from "../../components/loading/index";
 import "./index.scss";
-
-function dateFormat(fmt, date) {
-  let ret;
-  const opt = {
-    "Y+": date.getFullYear().toString(), // 年
-    "m+": (date.getMonth() + 1).toString(), // 月
-    "d+": date.getDate().toString(), // 日
-    "H+": date.getHours().toString(), // 时
-    "M+": date.getMinutes().toString(), // 分
-    "S+": date.getSeconds().toString() // 秒
-    // 有其他格式化字符需求可以继续添加，必须转化成字符串
-  };
-  for (let k in opt) {
-    ret = new RegExp("(" + k + ")").exec(fmt);
-    if (ret) {
-      fmt = fmt.replace(
-        ret[1],
-        ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0")
-      );
-    }
-  }
-  return fmt;
-}
-
-interface IItem {
-  _id: string;
-  message: string;
-  nickName?: string;
-  avatarUrl?: string;
-  createAt: string;
-}
+import { format } from "timeago.js";
+import { useSelector, useDispatch } from "@tarojs/redux";
+import { iRootState, Dispatch } from "../../store/createStore";
 
 interface Props {}
 
 const Login: Taro.FC<Props> = () => {
-  const [data, setData] = useState<IItem[]>([]);
+  const dispatch = useDispatch<Dispatch>();
+  const { data, loading, pageNum, pageSize, total } = useSelector(
+    (state: iRootState) => state.message
+  );
   const [message, setMessage] = useState("");
   const load = useCallback(() => {
-    Taro.cloud
-      .callFunction({
-        name: "message",
-        data: {
-          parentId: "0"
-        }
-      })
-      .then(res => {
-        if (res && res.result) {
-          setData(res.result.data);
-        }
-      });
+    dispatch({ type: "message/query" });
   }, []);
-  const handleChange = (event: any) => {
-    setMessage(event.target.value);
+  const handleChange = (e: any) => {
+    setMessage(e.target.value);
     // 在小程序中，如果想改变 value 的值，需要 `return value` 从而改变输入框的当前值
-    return event.target.value;
+    return e.target.value;
   };
   const handleOk = useCallback(() => {
     if (message.trim() === "") {
       return;
     }
     setMessage("");
-    Taro.cloud
-      .callFunction({
-        name: "createMessage",
-        data: {
-          message
-        }
-      })
-      .then(res => {
-        if (res && res.result) {
-          load();
-        }
-      });
+    dispatch({ type: "message/create", payload: { message } });
   }, [load, message]);
+  const onScroll = useCallback(() => {
+    if (total - pageNum * pageSize > 0) {
+      dispatch({ type: "message/save", payload: { pageNum: pageNum + 1 } });
+      load();
+    }
+  }, [total, pageSize, pageNum, load]);
   useEffect(() => {
     load();
   }, [load]);
+  console.log(data);
+
+  const scrollTop = 0;
+  const Threshold = 50;
 
   return (
-    <View className="page">
-      {data.map((item: IItem) => (
-        <View key={item._id}>
-          <AtCard
-            className="mt"
-            note={dateFormat("YYYY-mm-dd HH:MM", new Date(item.createAt))}
-            title={item.nickName}
-            thumb={item.avatarUrl}
-          >
-            {item.message}
-          </AtCard>
+    <Loading show={loading}>
+      <View className="message-page">
+        <ScrollView
+          className="body"
+          scrollY
+          scrollWithAnimation
+          scrollTop={scrollTop}
+          lowerThreshold={Threshold}
+          upperThreshold={Threshold}
+          onScrollToLower={onScroll}
+        >
+          {data.map(item => (
+            <View className="message" key={item._id}>
+              <View className="header">
+                <View className="avatar">
+                  <Image className="user-avatar" src={item.avatarUrl} />
+                </View>
+                <View className="title">{item.nickName}</View>
+                <View className="note">
+                  {format(new Date(item.createAt), "zh_CN")}
+                </View>
+              </View>
+              <View className="message-content">{item.message}</View>
+            </View>
+          ))}
+        </ScrollView>
+        <View className="footer">
+          <View className="message-sender">
+            <Input
+              className="text-input"
+              name="value"
+              value={message}
+              onInput={handleChange}
+            />
+            <View onClick={handleOk} className="btn-send">
+              <Text>send</Text>
+            </View>
+          </View>
         </View>
-      ))}
-      <View className="mt">
-        <AtTextarea value={message} onChange={handleChange} autoHeight />
       </View>
-      <View className="mt">
-        <Button type="primary" onClick={handleOk}>
-          send
-        </Button>
-      </View>
-    </View>
+    </Loading>
   );
 };
 

@@ -4,6 +4,7 @@ import userInfo from "./userInfo";
 import question from "./question";
 import ranking from "./ranking";
 import wrongs from "./wrongs";
+import message from "./message";
 
 export default {
   category,
@@ -11,5 +12,6 @@ export default {
   userInfo,
   question,
   ranking,
+  message,
   wrongs
 };

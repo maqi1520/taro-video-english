@@ -4,13 +4,14 @@ import QuestionItem from "../../components/question-item";
 import "./index.scss";
 import { useSelector, useDispatch } from "@tarojs/redux";
 import { iRootState, Dispatch } from "../../store/createStore";
+import Loading from "../../components/loading/index";
 
 interface Props {}
 
 const Wrongs: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
-  const userInfo = useSelector((state: iRootState) => state.userInfo);
-  const data = useSelector((state: iRootState) => state.wrongs.data);
+  const { data, loading } = useSelector((state: iRootState) => state.wrongs);
+
   const router = useRouter();
   useEffect(() => {
     if (router.params.type === "stars") {
@@ -20,7 +21,7 @@ const Wrongs: Taro.FC<Props> = () => {
       dispatch({
         type: "wrongs/query",
         payload: {
-          stars: userInfo.stars
+          type: "stars"
         }
       });
     } else {
@@ -30,7 +31,7 @@ const Wrongs: Taro.FC<Props> = () => {
       dispatch({
         type: "wrongs/query",
         payload: {
-          wrongs: userInfo.wrongs
+          type: "wrongs"
         }
       });
     }
@@ -41,6 +42,7 @@ const Wrongs: Taro.FC<Props> = () => {
       dispatch({
         type: "wrongs/save",
         payload: {
+          loading: true,
           data: []
         }
       });
@@ -49,13 +51,25 @@ const Wrongs: Taro.FC<Props> = () => {
 
   return (
     <View className="page">
-      {data.map(question => (
-        <QuestionItem
-          type={router.params.type}
-          key={question._id}
-          question={question}
-        />
-      ))}
+      <Loading show={loading}>
+        {!loading && data.length === 0 ? (
+          <View className="empty-container">
+            <View className="empty-pic">
+              <View className="empty-text">No Data</View>
+            </View>
+          </View>
+        ) : (
+          <View>
+            {data.map(question => (
+              <QuestionItem
+                type={router.params.type}
+                key={question._id}
+                question={question}
+              />
+            ))}
+          </View>
+        )}
+      </Loading>
     </View>
   );
 };

@@ -37,7 +37,7 @@ const Me: Taro.FC<Props> = () => {
             size="mini"
             type="primary"
           >
-            排行榜
+            Top 10
           </Button>
         </View>
       </View>

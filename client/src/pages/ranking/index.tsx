@@ -7,8 +7,7 @@ import "./index.scss";
 interface Props {}
 const RankingList: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
-  const ranking = useSelector((state: iRootState) => state.ranking);
-  const { data, total } = ranking;
+  const { data, total } = useSelector((state: iRootState) => state.ranking);
   useEffect(() => {
     dispatch({
       type: "ranking/query"
@@ -23,7 +22,6 @@ const RankingList: Taro.FC<Props> = () => {
             <Text>NO</Text>
           </View>
           <View className="user-td">
-            {" "}
             <Text>avatar</Text>
           </View>
           <View className="user-td">
@@ -55,7 +53,7 @@ const RankingList: Taro.FC<Props> = () => {
 };
 
 RankingList.config = {
-  navigationBarTitleText: "Ranking-List"
+  navigationBarTitleText: "Top 10"
 };
 
 export default RankingList;

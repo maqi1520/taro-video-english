@@ -1,4 +1,4 @@
-import Taro, { useState, useCallback } from "@tarojs/taro";
+import Taro, { useCallback } from "@tarojs/taro";
 import { View, Text, Video } from "@tarojs/components";
 import { Iquestion } from "../../models/question";
 import { useDispatch } from "@tarojs/redux";
@@ -17,25 +17,10 @@ const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
       dispatch({
         type: "wrongs/remove",
         payload: {
-          questionId
+          questionId,
+          type
         }
       });
-
-      if (type === "stars") {
-        dispatch({
-          type: "userInfo/updateUserStars",
-          payload: {
-            questionId
-          }
-        });
-      } else {
-        dispatch({
-          type: "userInfo/updateWrongs",
-          payload: {
-            questionId
-          }
-        });
-      }
     },
     [dispatch]
   );

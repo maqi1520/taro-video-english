@@ -3,12 +3,14 @@
 }
 .user-avatar-td {
   width: 120px;
+  display: flex;
 }
 .user-avatar {
-  width: 100px;
-  height: 100px;
+  width: 60px;
+  height: 60px;
+  border-radius: 0.2rem;
   display: block;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 .user-item {
   margin-top: 0.5rem;

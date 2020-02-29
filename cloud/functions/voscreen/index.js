@@ -14,23 +14,8 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const {
     id,
-    stars,
-    wrongs
+    userId
   } = event
-
-  if(stars||wrongs){
-    const res= await db.collection('voscreen').where({
-      _id:_.in(stars||wrongs)
-    })
-    .limit(10)
-    .get()
-    return {
-      data:res.data,
-      openid: wxContext.OPENID,
-      appid: wxContext.APPID,
-      unionid: wxContext.UNIONID,
-    }
-  }
 
   const countResult = await db.collection('voscreen').count()
   const total = countResult.total
@@ -45,12 +30,18 @@ exports.main = async (event, context) => {
       .get()
     question = res.data[0]
   }
+  let starCount = 0
+  if (userId) {
+    starCount = await db.collection('worngs').where({
+      userId,
+      questionId: question._id,
+      type: 'stars'
+    }).count()
+  }
 
   return {
     question,
-    event,
-    openid: wxContext.OPENID,
-    appid: wxContext.APPID,
-    unionid: wxContext.UNIONID,
+    hasStar: starCount > 0,
+    success: 1
   }
 }

@@ -12,6 +12,7 @@ import cl from "classnames";
 import "./index.scss";
 import { useSelector, useDispatch } from "@tarojs/redux";
 import { iRootState, Dispatch } from "../../store/createStore";
+import Loading from "../../components/loading/index";
 
 interface Props {}
 
@@ -23,7 +24,7 @@ const randomChoices = () =>
 const My: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
   const score = useSelector((state: iRootState) => state.score);
-  const { question, countdown } = useSelector(
+  const { question, hasStar, countdown, loading } = useSelector(
     (state: iRootState) => state.question
   );
   const userInfo = useSelector((state: iRootState) => state.userInfo);
@@ -47,6 +48,9 @@ const My: Taro.FC<Props> = () => {
   useEffect(() => {
     dispatch({ type: "question/get", payload: { id: router.params.id } });
     setChoices(randomChoices());
+    return () => {
+      dispatch({ type: "question/save", payload: { loading: true } });
+    };
   }, [dispatch, router.params]);
   const onGetUserInfo = useCallback(
     e => {
@@ -69,8 +73,12 @@ const My: Taro.FC<Props> = () => {
       newScore.points = score.points - failPoints;
       newScore.fail = score.fail + 1;
       dispatch({
-        type: "userInfo/updateWrongs",
-        payload: { questionId: question._id }
+        type: "wrongs/create",
+        payload: {
+          questionId: question._id,
+          userId: userInfo._id,
+          type: "wrongs"
+        }
       });
       Taro.atMessage({
         message: `score -${failPoints}`,
@@ -136,125 +144,139 @@ const My: Taro.FC<Props> = () => {
     [choose]
   );
   const onStar = useCallback(() => {
-    const questionId = question._id;
-    const userId = userInfo._id;
-    const stars = question.stars + 1;
-    const userStars = [...userInfo.stars, questionId];
+    dispatch({ type: "question/updateStars", payload: question });
     dispatch({
-      type: "userInfo/updateStar",
-      payload: { questionId, stars, userId, userStars }
+      type: "wrongs/create",
+      payload: {
+        questionId: question._id,
+        userId: userInfo._id,
+        type: "stars"
+      }
     });
-  }, [userInfo.stars, question._id, userInfo._id, userInfo.stars, dispatch]);
+    dispatch({
+      type: "question/save",
+      payload: {
+        hasStar: true
+      }
+    });
+  }, [question._id, userInfo._id, dispatch]);
   const unStar = useCallback(() => {
-    const questionId = question._id;
-    const userId = userInfo._id;
-    const stars = question.stars - 1;
-    let userStars = userInfo.stars.filter(id => id !== questionId);
     dispatch({
-      type: "userInfo/updateStar",
-      payload: { questionId, stars, userId, userStars }
+      type: "wrongs/remove",
+      payload: {
+        questionId: question._id,
+        userId: userInfo._id,
+        type: "stars"
+      }
     });
-  }, [userInfo.stars, question._id, userInfo._id, userInfo.stars, dispatch]);
-  if (!question.video) {
-    return null;
-  }
+    dispatch({
+      type: "question/save",
+      payload: {
+        hasStar: false
+      }
+    });
+  }, [question._id, userInfo._id, dispatch]);
 
   return (
     <View className="page">
       <AtMessage />
-      <View className="container">
-        {step >= 1 ? <View className="time-container">{countdown}</View> : null}
-        <Video
-          src={"http://image.maqib.cn" + question.video.sources.mp4}
-          autoplay={false}
-          style={{ width: "100%", height: "56.25vw" }}
-          id="video"
-          onEnded={onEnded}
-        />
-        <View className="video-desc clearfix">
-          <View className="video-name">
-            <View>{question.video.metadata.name}</View>
-          </View>
-          <View className="video-icon">
-            <AtIcon size="20" value="eye"></AtIcon>
-            <Text>{question.video.metadata.views}</Text>
-          </View>
-          {userInfo.stars.indexOf(question._id) > -1 ? (
-            <View onClick={unStar} className="video-icon active">
-              <AtIcon size="19" color="#F00" value="star" />
-              <Text>{question.stars}</Text>
-            </View>
-          ) : (
-            <View onClick={onStar} className="video-icon">
-              <AtIcon size="19" value="star" />
-              <Text>{question.stars}</Text>
-            </View>
-          )}
-          <Button
-            className="pull-right"
-            data-name={question.video.metadata.name}
-            data-id={question._id}
-            type="primary"
-            size="mini"
-            openType="share"
-          >
-            <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
-            <Text> share</Text>
-          </Button>
-        </View>
-      </View>
-      {!userInfo.nickName ? (
-        <View className="login-container">
-          <Button
-            type="primary"
-            size="mini"
-            onGetUserInfo={onGetUserInfo}
-            openType="getUserInfo"
-          >
-            授权登录
-          </Button>
-          <View className="mt">授权后查看字幕，选择正确的答案</View>
-        </View>
-      ) : (
-        <View className="choose">
+      <Loading show={loading}>
+        <View className="container">
           {step >= 1 ? (
-            <View>
-              <View className="clearfix ">
-                <View className="pull-left switch-label">Subtitle</View>
-                <Switch
-                  className="pull-right"
-                  checked={show}
-                  onChange={handleChange}
-                />
-              </View>
-              {show ? (
-                <View className="subtitle">{question.video.subtitle}</View>
-              ) : null}
-              {choices.map(key => (
-                <View
-                  key={key}
-                  onClick={() => handleChoose(key)}
-                  className={cl("choice", {
-                    "choice-green":
-                      key === "answer" &&
-                      (choose === "answer" || choose === "default"),
-                    "choice-red":
-                      key === "distractor" &&
-                      (choose === "distractor" || choose === "default")
-                  })}
-                >
-                  {question.choices[key]}
-                </View>
-              ))}
+            <View className="time-container">{countdown}</View>
+          ) : null}
+          <Video
+            src={"http://image.maqib.cn" + question.video.sources.mp4}
+            autoplay={false}
+            style={{ width: "100%", height: "56.25vw" }}
+            id="video"
+            onEnded={onEnded}
+          />
+          <View className="video-desc clearfix">
+            <View className="video-name">
+              <View>{question.video.metadata.name}</View>
             </View>
-          ) : null}
-          {step === 2 ? (
-            <Button type="primary" onClick={() => load()} className="mt">
-              Next
+            <View className="video-icon">
+              <AtIcon size="20" value="eye"></AtIcon>
+              <Text>{question.video.metadata.views}</Text>
+            </View>
+            {hasStar ? (
+              <View onClick={unStar} className="video-icon active">
+                <AtIcon size="19" color="#F00" value="star" />
+                <Text>{question.stars}</Text>
+              </View>
+            ) : (
+              <View onClick={onStar} className="video-icon">
+                <AtIcon size="19" value="star" />
+                <Text>{question.stars}</Text>
+              </View>
+            )}
+            <Button
+              className="pull-right"
+              data-name={question.video.metadata.name}
+              data-id={question._id}
+              type="primary"
+              size="mini"
+              openType="share"
+            >
+              <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
+              <Text> share</Text>
             </Button>
-          ) : null}
+          </View>
         </View>
-      )}
+        {!userInfo.nickName ? (
+          <View className="login-container">
+            <Button
+              type="primary"
+              size="mini"
+              onGetUserInfo={onGetUserInfo}
+              openType="getUserInfo"
+            >
+              授权登录
+            </Button>
+            <View className="mt">授权后查看字幕，选择正确的答案</View>
+          </View>
+        ) : (
+          <View className="choose">
+            {step >= 1 ? (
+              <View>
+                <View className="clearfix ">
+                  <View className="pull-left switch-label">Subtitle</View>
+                  <Switch
+                    className="pull-right"
+                    checked={show}
+                    onChange={handleChange}
+                  />
+                </View>
+                {show ? (
+                  <View className="subtitle">{question.video.subtitle}</View>
+                ) : null}
+                {choices.map(key => (
+                  <View
+                    key={key}
+                    onClick={() => handleChoose(key)}
+                    className={cl("choice", {
+                      "choice-green":
+                        key === "answer" &&
+                        (choose === "answer" || choose === "default"),
+                      "choice-red":
+                        key === "distractor" &&
+                        (choose === "distractor" || choose === "default")
+                    })}
+                  >
+                    {question.choices[key]}
+                  </View>
+                ))}
+              </View>
+            ) : null}
+            {step === 2 ? (
+              <Button type="primary" onClick={() => load()} className="mt">
+                Next
+              </Button>
+            ) : null}
+          </View>
+        )}
+      </Loading>
     </View>
   );
 };

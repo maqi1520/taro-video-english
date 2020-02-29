@@ -29,11 +29,13 @@ export interface Iquestion {
 export interface Istate {
   countdown: number;
   question: Iquestion;
+  loading: boolean;
 }
 
 interface IquestionRes {
   errMsg: string;
   result: {
+    hasStar: boolean;
     question: Iquestion;
   };
 }
@@ -41,19 +43,14 @@ interface IquestionRes {
 export default createModel({
   state: {
     countdown: 0,
+    hasStar: false,
+    loading: true,
     question: {} as Iquestion
   },
   reducers: {
     save: (state: Istate, payload: Istate) => ({
       ...state,
       ...payload
-    }),
-    updateStar: (state: Istate, stars) => ({
-      ...state,
-      question: {
-        ...state.question,
-        stars
-      }
     })
   },
   effects: () => ({
@@ -65,8 +62,11 @@ export default createModel({
         }
       });
       const question = (res as IquestionRes).result.question;
+      const hasStar = (res as IquestionRes).result.hasStar;
       this.save({
+        loading: false,
         question,
+        hasStar,
         countdown: question.countdown
       });
     },
@@ -92,6 +92,23 @@ export default createModel({
       };
       this.save({
         question
+      });
+    },
+    async updateStars(payload): Promise<void> {
+      const stars = parseInt(payload.stars) + 1;
+      const question = {
+        ...payload,
+        stars
+      };
+      this.save({
+        question
+      });
+      await Taro.cloud.callFunction({
+        name: "update_voscreen",
+        data: {
+          _id: payload._id,
+          stars
+        }
       });
     }
   })

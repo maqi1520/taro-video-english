@@ -10,8 +10,16 @@ exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
   const {
     _id,
-    views
+    views,
+    stars
   } = event
+  if(stars){
+    return await db.collection('voscreen').doc(_id).update({
+      data:{
+        stars
+      }
+    })
+  }
 
   return await db.collection('voscreen').doc(_id).update({
     data:{
