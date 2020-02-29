@@ -12,11 +12,13 @@ interface Iuser {
 
 export type Iranking = {
   total: number;
+  loading: boolean;
   data: Iuser[];
 };
 export default createModel({
   state: {
     total: 0,
+    loading: true,
     data: []
   },
   reducers: {
@@ -31,7 +33,10 @@ export default createModel({
         name: "ranking_query",
         data: {}
       });
-      this.save(res.result);
+      this.save({
+        loading: false,
+        ...(res.result as Iranking)
+      });
     }
   })
 });
