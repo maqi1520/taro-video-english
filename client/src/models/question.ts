@@ -27,8 +27,11 @@ export interface Iquestion {
 }
 
 export interface Istate {
+  choices: string[];
+  choose: string;
   countdown: number;
   question: Iquestion;
+  hasStar: boolean;
   loading: boolean;
 }
 
@@ -40,8 +43,15 @@ interface IquestionRes {
   };
 }
 
+const randomChoices = () =>
+  ["answer", "distractor"].sort(() => {
+    return Math.random() > 0.5 ? -1 : 1;
+  });
+
 export default createModel({
   state: {
+    choices: [],
+    choose: "",
     countdown: 0,
     hasStar: false,
     loading: true,
@@ -64,6 +74,8 @@ export default createModel({
       const question = (res as IquestionRes).result.question;
       const hasStar = (res as IquestionRes).result.hasStar;
       this.save({
+        choices: randomChoices(),
+        choose: "",
         loading: false,
         question,
         hasStar,

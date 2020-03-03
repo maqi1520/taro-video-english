@@ -8,7 +8,6 @@ import Taro, {
 } from "@tarojs/taro";
 import { View, Text, Video, Button, Switch } from "@tarojs/components";
 import { AtMessage, AtIcon } from "taro-ui";
-import cl from "classnames";
 import "./index.scss";
 import { useSelector, useDispatch } from "@tarojs/redux";
 import { iRootState, Dispatch } from "../../store/createStore";
@@ -16,22 +15,22 @@ import Loading from "../../components/loading/index";
 
 interface Props {}
 
-const randomChoices = () =>
-  ["answer", "distractor"].sort(() => {
-    return Math.random() > 0.5 ? -1 : 1;
-  });
-
 const My: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
+  const showV = useSelector((state: iRootState) => state.category.show);
   const score = useSelector((state: iRootState) => state.score);
-  const { question, hasStar, countdown, loading } = useSelector(
-    (state: iRootState) => state.question
-  );
+  const {
+    question,
+    choices,
+    choose,
+    hasStar,
+    countdown,
+    loading
+  } = useSelector((state: iRootState) => state.question);
   const userInfo = useSelector((state: iRootState) => state.userInfo);
-  const [choices, setChoices] = useState<string[]>([]);
-  const [show, setShow] = useState<boolean>(false);
-  const [choose, setChoose] = useState<string>("");
+  const [show, setShow] = useState<boolean>(true);
   const [step, setStep] = useState<number>(0);
+
   const ref = useRef<ReturnType<typeof setTimeout>>();
   useShareAppMessage((res: any) => {
     if (res.from === "button") {
@@ -47,14 +46,12 @@ const My: Taro.FC<Props> = () => {
   const router = useRouter();
   useEffect(() => {
     dispatch({ type: "question/get", payload: { id: router.params.id } });
-    setChoices(randomChoices());
     return () => {
       dispatch({ type: "question/save", payload: { loading: true } });
     };
   }, [dispatch, router.params]);
   const onGetUserInfo = useCallback(
     e => {
-      console.log(e.detail.userInfo);
       dispatch({ type: "userInfo/get", payload: e.detail.userInfo });
     },
     [dispatch]
@@ -105,7 +102,12 @@ const My: Taro.FC<Props> = () => {
           ref.current = undefined;
           if (!choose) {
             setStep(2);
-            setChoose("default");
+            dispatch({
+              type: "question/save",
+              payload: {
+                choose: "default"
+              }
+            });
           }
           setScore();
         }
@@ -119,25 +121,29 @@ const My: Taro.FC<Props> = () => {
   }, [countdown, userInfo, dispatch, choose, step, setScore]);
 
   const load = useCallback(() => {
-    setShow(false);
     setStep(0);
-    setChoose("");
     dispatch({ type: "question/get", payload: {} });
-    setChoices(randomChoices());
   }, [dispatch]);
   const onEnded = useCallback(() => {
-    dispatch({ type: "question/updateViews", payload: question });
     if (step === 0) {
       setStep(1);
     }
-  }, [dispatch, question]);
+    dispatch({ type: "question/updateViews", payload: question });
+  }, [dispatch, step, question]);
   const handleChange = useCallback(e => {
     setShow(e.target.value);
   }, []);
   const handleChoose = useCallback(
-    value => {
+    e => {
+      const value = e.target.dataset.key;
+
       if (!choose) {
-        setChoose(value);
+        dispatch({
+          type: "question/save",
+          payload: {
+            choose: value
+          }
+        });
         setStep(2);
       }
     },
@@ -159,7 +165,7 @@ const My: Taro.FC<Props> = () => {
         hasStar: true
       }
     });
-  }, [question._id, userInfo._id, dispatch]);
+  }, [question, userInfo._id, dispatch]);
   const unStar = useCallback(() => {
     dispatch({
       type: "wrongs/remove",
@@ -181,49 +187,53 @@ const My: Taro.FC<Props> = () => {
     <View className="page">
       <AtMessage />
       <Loading show={loading}>
-        <View className="container">
-          {step >= 1 ? (
-            <View className="time-container">{countdown}</View>
-          ) : null}
-          <Video
-            src={"http://image.maqib.cn" + question.video.sources.mp4}
-            autoplay={false}
-            style={{ width: "100%", height: "56.25vw" }}
-            id="video"
-            onEnded={onEnded}
-          />
-          <View className="video-desc clearfix">
-            <View className="video-name">
-              <View>{question.video.metadata.name}</View>
-            </View>
-            <View className="video-icon">
-              <AtIcon size="20" value="eye"></AtIcon>
-              <Text>{question.video.metadata.views}</Text>
-            </View>
-            {hasStar ? (
-              <View onClick={unStar} className="video-icon active">
-                <AtIcon size="19" color="#F00" value="star" />
-                <Text>{question.stars}</Text>
+        {showV ? (
+          <View className="container">
+            {step >= 1 ? (
+              <View className="time-container">{countdown}</View>
+            ) : null}
+
+            <Video
+              src={"http://image.maqib.cn" + question.video.sources.mp4}
+              autoplay={false}
+              style={{ width: "100%", height: "56.25vw" }}
+              id="video"
+              onEnded={onEnded}
+            />
+
+            <View className="video-desc clearfix">
+              <View className="video-name">
+                <View>{question.video.metadata.name}</View>
               </View>
-            ) : (
-              <View onClick={onStar} className="video-icon">
-                <AtIcon size="19" value="star" />
-                <Text>{question.stars}</Text>
+              <View className="video-icon">
+                <AtIcon size="20" value="eye"></AtIcon>
+                <Text>{question.video.metadata.views}</Text>
               </View>
-            )}
-            <Button
-              className="pull-right"
-              data-name={question.video.metadata.name}
-              data-id={question._id}
-              type="primary"
-              size="mini"
-              openType="share"
-            >
-              <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
-              <Text> share</Text>
-            </Button>
+              {hasStar ? (
+                <View onClick={unStar} className="video-icon active">
+                  <AtIcon size="19" color="#F00" value="star" />
+                  <Text>{question.stars}</Text>
+                </View>
+              ) : (
+                <View onClick={onStar} className="video-icon">
+                  <AtIcon size="19" value="star" />
+                  <Text>{question.stars}</Text>
+                </View>
+              )}
+              <Button
+                className="pull-right"
+                data-name={question.video.metadata.name}
+                data-id={question._id}
+                type="primary"
+                size="mini"
+                openType="share"
+              >
+                <AtIcon value="share-2" size="12" color="#fff"></AtIcon>
+                <Text> share</Text>
+              </Button>
+            </View>
           </View>
-        </View>
+        ) : null}
         {!userInfo.nickName ? (
           <View className="login-container">
             <Button
@@ -238,7 +248,7 @@ const My: Taro.FC<Props> = () => {
           </View>
         ) : (
           <View className="choose">
-            {step >= 1 ? (
+            {step >= 1 || !showV ? (
               <View>
                 <View className="clearfix ">
                   <View className="pull-left switch-label">Subtitle</View>
@@ -251,26 +261,30 @@ const My: Taro.FC<Props> = () => {
                 {show ? (
                   <View className="subtitle">{question.video.subtitle}</View>
                 ) : null}
-                {choices.map(key => (
+                {choices.map(choice => (
                   <View
-                    key={key}
-                    onClick={() => handleChoose(key)}
-                    className={cl("choice", {
-                      "choice-green":
-                        key === "answer" &&
-                        (choose === "answer" || choose === "default"),
-                      "choice-red":
-                        key === "distractor" &&
-                        (choose === "distractor" || choose === "default")
-                    })}
+                    key={choice}
+                    data-key={choice}
+                    onClick={handleChoose}
+                    className={`choice ${
+                      (choose === "answer" || choose === "default") &&
+                      choice === "answer"
+                        ? "choice-green"
+                        : ""
+                    } ${
+                      (choose === "distractor" || choose === "default") &&
+                      choice === "distractor"
+                        ? "choice-red"
+                        : ""
+                    }`}
                   >
-                    {question.choices[key]}
+                    {question.choices[choice]}
                   </View>
                 ))}
               </View>
             ) : null}
             {step === 2 ? (
-              <Button type="primary" onClick={() => load()} className="mt">
+              <Button type="primary" onClick={load} className="mt">
                 Next
               </Button>
             ) : null}

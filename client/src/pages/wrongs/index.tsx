@@ -11,6 +11,7 @@ interface Props {}
 const Wrongs: Taro.FC<Props> = () => {
   const dispatch = useDispatch<Dispatch>();
   const { data, loading } = useSelector((state: iRootState) => state.wrongs);
+  const show = useSelector((state: iRootState) => state.category.show);
 
   const router = useRouter();
   useEffect(() => {
@@ -62,6 +63,7 @@ const Wrongs: Taro.FC<Props> = () => {
           <View>
             {data.map(question => (
               <QuestionItem
+                show={show}
                 type={router.params.type}
                 key={question._id}
                 question={question}

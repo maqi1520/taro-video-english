@@ -6,11 +6,12 @@ import { Dispatch } from "../../store/createStore";
 import "./index.scss";
 
 interface Props {
+  show: boolean;
   question: Iquestion;
   type: string;
 }
 
-const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
+const QuestionItem: Taro.FC<Props> = ({ question, type, show }) => {
   const dispatch = useDispatch<Dispatch>();
   const onRemove = useCallback(
     questionId => {
@@ -26,14 +27,16 @@ const QuestionItem: Taro.FC<Props> = ({ question, type }) => {
   );
   return (
     <View className="question-container">
-      <View className="video-container">
-        <Video
-          src={"http://image.maqib.cn" + question.video.sources.mp4}
-          autoplay={false}
-          style={{ width: "100%", height: "56.25vw" }}
-          showCenterPlayBtn
-        />
-      </View>
+      {show ? (
+        <View className="video-container">
+          <Video
+            src={"http://image.maqib.cn" + question.video.sources.mp4}
+            autoplay={false}
+            style={{ width: "100%", height: "56.25vw" }}
+            showCenterPlayBtn
+          />
+        </View>
+      ) : null}
 
       <View className="video-desc clearfix">
         <View className="video-name">
