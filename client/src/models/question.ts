@@ -76,10 +76,10 @@ export default createModel({
       this.save({
         choices: randomChoices(),
         choose: "",
-        loading: false,
         question,
         hasStar,
-        countdown: question.countdown
+        countdown: question.countdown,
+        loading: false
       });
     },
     async updateViews(payload): Promise<void> {

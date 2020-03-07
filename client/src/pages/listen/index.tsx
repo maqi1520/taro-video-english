@@ -45,6 +45,12 @@ const My: Taro.FC<Props> = () => {
   });
   const router = useRouter();
   useEffect(() => {
+    Taro.getStorage({
+      key: "show",
+      success: res => {
+        setShow(res.data);
+      }
+    });
     dispatch({ type: "question/get", payload: { id: router.params.id } });
     return () => {
       dispatch({ type: "question/save", payload: { loading: true } });
@@ -132,6 +138,10 @@ const My: Taro.FC<Props> = () => {
   }, [dispatch, step, question]);
   const handleChange = useCallback(e => {
     setShow(e.target.value);
+    Taro.setStorage({
+      key: "show",
+      data: e.target.value
+    });
   }, []);
   const handleChoose = useCallback(
     e => {
@@ -187,7 +197,7 @@ const My: Taro.FC<Props> = () => {
     <View className="page">
       <AtMessage />
       <Loading show={loading}>
-        {showV ? (
+        {showV && question.video ? (
           <View className="container">
             {step >= 1 ? (
               <View className="time-container">{countdown}</View>

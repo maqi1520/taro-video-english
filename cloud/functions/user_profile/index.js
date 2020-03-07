@@ -8,6 +8,7 @@ exports.main = async (event) => {
   const {
     userInfo
   } = event
+  let show=false;
   const wxContext = cloud.getWXContext()
   const res = await db.collection('user_profile')
     .where({
@@ -21,11 +22,12 @@ exports.main = async (event) => {
       })
       return {
         ...userInfo,
+        show,
         _id: res.data[0]._id,
         openId: wxContext.OPENID,
       }
     }
-    return res.data[0]
+    return {show,...res.data[0]}
   } else {
     let data = {}
     if (!userInfo) {
@@ -43,6 +45,7 @@ exports.main = async (event) => {
     })
     return {
       ...data,
+      show,
       _id: addRes._id
     }
   }
