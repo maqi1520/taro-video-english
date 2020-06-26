@@ -28,12 +28,11 @@ exports.main = async (event, context) => {
     .project({
       userinfo: 0,
     })
-    .skip((pageNum - 1) * pageSize) // 跳过结果集中的前 10 条，从第 11 条开始返回
-    .limit(pageSize)
     .sort({
-      success: 1,
       points: -1
     })
+    .skip((pageNum - 1) * pageSize) // 跳过结果集中的前 10 条，从第 11 条开始返回
+    .limit(pageSize)
     .end()
   return {
     data: res.list,

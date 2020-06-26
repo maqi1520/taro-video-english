@@ -8,7 +8,7 @@ exports.main = async (event) => {
   const {
     userInfo
   } = event
-  let show=false;
+  let show=true;
   const wxContext = cloud.getWXContext()
   const res = await db.collection('user_profile')
     .where({
